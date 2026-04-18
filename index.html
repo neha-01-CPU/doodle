@@ -17,206 +17,121 @@
 
   <div id="screen-lobby" class="screen active">
     <div class="lobby-card glass-strong">
-
       <div class="lobby-header">
-        <div class="logo-wrap">
-          <span class="logo-icon">🎨</span>
-          <h1 class="logo-text">Picazo</h1>
-        </div>
+        <div class="logo-wrap"><span class="logo-icon">🎨</span><h1 class="logo-text">Picazo</h1></div>
         <p class="lobby-sub">Draw it. Guess it. Win it.</p>
       </div>
 
       <div class="section-block">
         <label class="section-label">Choose Your Avatar</label>
         <div class="avatar-picker">
-          <button class="av-arrow" id="btn-av-prev" aria-label="Previous">&#8249;</button>
-          <div class="av-frame" id="av-frame">
-            <canvas id="av-canvas" width="96" height="96"></canvas>
-          </div>
-          <button class="av-arrow" id="btn-av-next" aria-label="Next">&#8250;</button>
+          <button class="av-arrow" id="btn-av-prev">&#8249;</button>
+          <div class="av-frame" id="av-frame"><canvas id="av-canvas" width="96" height="96"></canvas></div>
+          <button class="av-arrow" id="btn-av-next">&#8250;</button>
         </div>
         <div class="av-dots" id="av-dots"></div>
       </div>
 
       <div class="section-block">
-        <label class="section-label" for="inp-name">Nickname</label>
+        <label class="section-label">Nickname</label>
         <input type="text" id="inp-name" class="text-input" placeholder="Enter your name..." maxlength="18" autocomplete="off" spellcheck="false" />
       </div>
 
       <div class="settings-row">
         <div class="setting-group">
           <label class="section-label">Rounds</label>
-          <select id="sel-rounds" class="select-input">
-            <option value="3">3</option>
-            <option value="5" selected>5</option>
-            <option value="8">8</option>
-          </select>
+          <select id="sel-rounds" class="select-input"><option value="3">3</option><option value="5" selected>5</option><option value="8">8</option></select>
         </div>
         <div class="setting-group">
           <label class="section-label">Draw Time</label>
-          <select id="sel-time" class="select-input">
-            <option value="60">60s</option>
-            <option value="90" selected>90s</option>
-            <option value="120">120s</option>
-          </select>
+          <select id="sel-time" class="select-input"><option value="60">60s</option><option value="90" selected>90s</option><option value="120">120s</option></select>
         </div>
         <div class="setting-group">
           <label class="section-label">Players</label>
-          <select id="sel-bots" class="select-input">
-            <option value="4">4</option>
-            <option value="6">6</option>
-            <option value="8" selected>8</option>
-          </select>
+          <select id="sel-bots" class="select-input"><option value="4">4</option><option value="6">6</option><option value="8" selected>8</option></select>
         </div>
       </div>
 
-      <button class="btn-play" id="btn-play">
-        <span class="btn-play-icon">▶</span>
-        START GAME
-      </button>
-
-      <p class="lobby-footer">✨ No signup needed &nbsp;·&nbsp; Play instantly &nbsp;·&nbsp; Free forever</p>
+      <button class="btn-play" id="btn-play">▶ START GAME</button>
     </div>
   </div>
 
   <div id="screen-game" class="screen">
-
+    
     <header class="game-header glass">
       <div class="hdr-timer-zone">
-        <div class="timer-ring-wrap" id="timer-ring-wrap">
-          <svg class="timer-svg" viewBox="0 0 60 60">
-            <circle class="t-bg" cx="30" cy="30" r="25"/>
-            <circle class="t-fg" id="t-fg" cx="30" cy="30" r="25" stroke-dasharray="157.08" stroke-dashoffset="0"/>
-          </svg>
+        <div class="timer-ring-wrap">
+          <svg class="timer-svg" viewBox="0 0 60 60"><circle class="t-bg" cx="30" cy="30" r="25"/><circle class="t-fg" id="t-fg" cx="30" cy="30" r="25" stroke-dasharray="157.08"/></svg>
           <span class="timer-num" id="timer-num">90</span>
         </div>
         <span class="round-badge" id="round-badge">Round 1/5</span>
       </div>
-
       <div class="hdr-word-zone">
         <div class="word-display" id="word-display"></div>
         <span class="word-meta" id="word-meta"></span>
       </div>
-
       <div class="hdr-right">
-        <button class="icon-btn" id="btn-mute" title="Toggle Sound">
-          <svg id="mute-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
-          </svg>
-        </button>
+        <button class="icon-btn" id="btn-mute"><svg id="mute-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></button>
       </div>
     </header>
 
     <div class="game-body">
-
+      
       <aside class="panel leaderboard-panel glass" id="leaderboard-panel">
-        <div class="panel-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-          Players
-        </div>
+        <div class="panel-title">Players</div>
         <ul class="player-list" id="player-list"></ul>
       </aside>
 
       <main class="canvas-col">
         <div class="canvas-wrap" id="canvas-wrap">
           <canvas id="game-canvas"></canvas>
-
+          
           <div class="overlay waiting-overlay glass" id="overlay-waiting">
-            <div class="overlay-inner">
-              <div class="wait-spinner">⏳</div>
-              <h3>Waiting for players…</h3>
-              <div class="share-link-box">
-                <span class="share-link-text" id="share-link">picazo.app/room/DEMO</span>
-                <button class="copy-btn" id="btn-copy-link">Copy</button>
-              </div>
-            </div>
+            <div class="overlay-inner"><div class="wait-spinner">⏳</div><h3>Waiting for players…</h3></div>
           </div>
-
+          
           <div class="overlay word-select-overlay hidden" id="overlay-word-select">
             <div class="ws-inner">
-              <div class="ws-header">
-                <h2>Choose a word to draw!</h2>
-                <p>Pick wisely — <span id="ws-timer">15</span>s</p>
-              </div>
-              <div class="ws-timer-bar-wrap"><div class="ws-timer-bar" id="ws-timer-bar"></div></div>
+              <div class="ws-header"><h2>Choose a word!</h2><p><span id="ws-timer">15</span>s</p></div>
               <div class="ws-cards" id="ws-cards"></div>
             </div>
           </div>
-
+          
           <div class="overlay round-end-overlay hidden" id="overlay-round-end">
             <div class="re-inner glass-strong">
-              <div class="re-emoji" id="re-emoji">⏰</div>
-              <h2 id="re-title">Round Over!</h2>
-              <p id="re-word">Word: <strong id="re-word-val">—</strong></p>
-              <div class="re-scores" id="re-scores"></div>
-              <div class="re-next" id="re-next">Next in <span id="re-countdown">5</span>s…</div>
+              <h2 id="re-title">Round Over!</h2><p id="re-word-val">—</p><div class="re-scores" id="re-scores"></div>
+              <div id="re-countdown">5</div>
             </div>
           </div>
         </div>
 
         <div class="toolbar-dark" id="toolbar">
+          <button class="tool-btn active" id="tool-pencil" data-tool="pencil"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button>
           
-          <button class="tool-btn active" id="tool-pencil" data-tool="pencil" title="Pencil">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
-          </button>
-
           <div class="tool-popup-wrap">
-            <button class="tool-btn" id="btn-color-popup" title="Color">
-              <div class="color-indicator-ring">
-                <div class="color-indicator" id="color-indicator" style="background:#000000;"></div>
-              </div>
-            </button>
-            <div class="tool-popup hidden" id="popup-color">
-              <div class="color-grid" id="color-palette"></div>
-              <input type="color" id="color-picker" value="#000000" title="Custom color" />
-            </div>
+            <button class="tool-btn" id="btn-color-popup"><div class="color-indicator-ring"><div class="color-indicator" id="color-indicator" style="background:#000000;"></div></div></button>
+            <div class="tool-popup hidden" id="popup-color"><div class="color-grid" id="color-palette"></div><input type="color" id="color-picker" value="#000000" /></div>
           </div>
-
+          
           <div class="tool-popup-wrap">
-            <button class="tool-btn" id="btn-size-popup" title="Size">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2" fill="currentColor"/></svg>
-            </button>
-            <div class="tool-popup hidden" id="popup-size">
-              <div class="size-label">Size: <span id="size-val-txt">3px</span></div>
-              <input type="range" class="size-slider" id="size-slider" min="1" max="40" value="3" />
-            </div>
+            <button class="tool-btn" id="btn-size-popup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2" fill="currentColor"/></svg></button>
+            <div class="tool-popup hidden" id="popup-size"><span class="size-label" id="size-val-txt">3px</span><input type="range" class="size-slider" id="size-slider" min="1" max="40" value="3" /></div>
           </div>
-
-          <button class="tool-btn" id="tool-rect" data-tool="rect" title="Rectangle">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
-          </button>
           
-          <button class="tool-btn" id="tool-fill" data-tool="fill" title="Fill Bucket">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 11l-8-8-8.5 8.5a5.5 5.5 0 0 0 7.78 7.78L19 11z"/><line x1="16.5" y1="15.5" x2="22" y2="21"/></svg>
-          </button>
-          
-          <button class="tool-btn" id="tool-eraser" data-tool="eraser" title="Eraser">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 20H7L3 16l11-11 6 6-3.5 3.5"/><path d="M6.5 17.5l-1-1"/></svg>
-          </button>
-          
-          <button class="tool-btn action-btn" id="tool-undo" title="Undo">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
-          </button>
-          
-          <button class="tool-btn action-btn" id="tool-clear" title="Clear Canvas">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-          </button>
-          
+          <button class="tool-btn" id="tool-rect" data-tool="rect"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/></svg></button>
+          <button class="tool-btn" id="tool-fill" data-tool="fill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 11l-8-8-8.5 8.5a5.5 5.5 0 0 0 7.78 7.78L19 11z"/><line x1="16.5" y1="15.5" x2="22" y2="21"/></svg></button>
+          <button class="tool-btn" id="tool-eraser" data-tool="eraser"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 20H7L3 16l11-11 6 6-3.5 3.5"/><path d="M6.5 17.5l-1-1"/></svg></button>
+          <button class="tool-btn" id="tool-undo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></button>
+          <button class="tool-btn" id="tool-clear"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
         </div>
       </main>
 
       <aside class="panel chat-panel glass" id="chat-panel">
-        <div class="panel-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          Guesses
-        </div>
+        <div class="panel-title">Guesses</div>
         <div class="chat-messages" id="chat-messages"></div>
         <div class="chat-input-row">
-          <input type="text" id="chat-input" class="chat-input" placeholder="Type your guess…" maxlength="80" autocomplete="off" spellcheck="false" />
-          <button class="chat-send-btn" id="btn-chat-send" aria-label="Send">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-          </button>
+          <input type="text" id="chat-input" class="chat-input" placeholder="Type your guess…" autocomplete="off" />
+          <button class="chat-send-btn" id="btn-chat-send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
         </div>
       </aside>
 
@@ -224,32 +139,14 @@
   </div>
 
   <div class="toast-container" id="toast-container"></div>
-
   <div class="context-menu glass-strong hidden" id="context-menu">
-    <div class="ctx-head" id="ctx-head">
-      <div class="ctx-av" id="ctx-av"></div>
-      <div>
-        <div class="ctx-name" id="ctx-name">Player</div>
-        <div class="ctx-pts" id="ctx-pts">0 pts</div>
-      </div>
-    </div>
-    <button class="ctx-btn ctx-danger" id="ctx-kick">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="18" y1="8" x2="23" y2="13"/><line x1="23" y1="8" x2="18" y2="13"/></svg>
-      Vote to Kick
-    </button>
-    <button class="ctx-btn" id="ctx-mute">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
-      Mute Player
-    </button>
+    <div class="ctx-head" id="ctx-head"><div class="ctx-av" id="ctx-av"></div><div><div class="ctx-name" id="ctx-name">Player</div><div class="ctx-pts" id="ctx-pts">0 pts</div></div></div>
+    <button class="ctx-btn" id="ctx-kick">Kick Player</button>
     <button class="ctx-btn ctx-close" id="ctx-close">Cancel</button>
   </div>
-
   <div class="vote-banner glass-strong hidden" id="vote-banner">
-    <div class="vote-banner-body">
-      <strong id="vote-title">Vote to kick?</strong>
-      <span id="vote-sub">2 of 3 votes needed</span>
-    </div>
-    <button class="vote-kick-btn" id="btn-vote-yes">Kick 👢</button>
+    <strong id="vote-title">Vote to kick?</strong>
+    <button class="vote-kick-btn" id="btn-vote-yes">Kick</button>
     <button class="vote-keep-btn" id="btn-vote-no">Keep</button>
   </div>
 
