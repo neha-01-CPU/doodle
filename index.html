@@ -11,20 +11,13 @@
 </head>
 <body>
 
-  <!-- =====================================================
-       BACKGROUND DECORATIONS
-  ====================================================== -->
   <div class="bg-blob blob-1"></div>
   <div class="bg-blob blob-2"></div>
   <div class="bg-blob blob-3"></div>
 
-  <!-- =====================================================
-       SCREEN 1: LOBBY
-  ====================================================== -->
   <div id="screen-lobby" class="screen active">
     <div class="lobby-card glass-strong">
 
-      <!-- Logo -->
       <div class="lobby-header">
         <div class="logo-wrap">
           <span class="logo-icon">🎨</span>
@@ -33,7 +26,6 @@
         <p class="lobby-sub">Draw it. Guess it. Win it.</p>
       </div>
 
-      <!-- Avatar Picker -->
       <div class="section-block">
         <label class="section-label">Choose Your Avatar</label>
         <div class="avatar-picker">
@@ -46,13 +38,11 @@
         <div class="av-dots" id="av-dots"></div>
       </div>
 
-      <!-- Name Input -->
       <div class="section-block">
         <label class="section-label" for="inp-name">Nickname</label>
         <input type="text" id="inp-name" class="text-input" placeholder="Enter your name..." maxlength="18" autocomplete="off" spellcheck="false" />
       </div>
 
-      <!-- Game Settings -->
       <div class="settings-row">
         <div class="setting-group">
           <label class="section-label">Rounds</label>
@@ -73,56 +63,41 @@
         <div class="setting-group">
           <label class="section-label">Players</label>
           <select id="sel-bots" class="select-input">
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4" selected>4</option>
+            <option value="4">4</option>
             <option value="6">6</option>
+            <option value="8" selected>8</option>
           </select>
         </div>
       </div>
 
-      <!-- Play Button -->
       <button class="btn-play" id="btn-play">
         <span class="btn-play-icon">▶</span>
         START GAME
       </button>
 
-      <!-- Tagline -->
       <p class="lobby-footer">✨ No signup needed &nbsp;·&nbsp; Play instantly &nbsp;·&nbsp; Free forever</p>
     </div>
   </div>
 
-  <!-- =====================================================
-       SCREEN 2: MAIN GAME
-  ====================================================== -->
   <div id="screen-game" class="screen">
 
-    <!-- ── TOP HEADER BAR ── -->
     <header class="game-header glass">
-
-      <!-- LEFT: Timer -->
       <div class="hdr-timer-zone">
         <div class="timer-ring-wrap" id="timer-ring-wrap">
           <svg class="timer-svg" viewBox="0 0 60 60">
             <circle class="t-bg" cx="30" cy="30" r="25"/>
-            <circle class="t-fg" id="t-fg" cx="30" cy="30" r="25"
-              stroke-dasharray="157.08"
-              stroke-dashoffset="0"/>
+            <circle class="t-fg" id="t-fg" cx="30" cy="30" r="25" stroke-dasharray="157.08" stroke-dashoffset="0"/>
           </svg>
           <span class="timer-num" id="timer-num">90</span>
         </div>
         <span class="round-badge" id="round-badge">Round 1/5</span>
       </div>
 
-      <!-- CENTER: Word display -->
       <div class="hdr-word-zone">
-        <div class="word-display" id="word-display">
-          <!-- blanks rendered by JS -->
-        </div>
+        <div class="word-display" id="word-display"></div>
         <span class="word-meta" id="word-meta"></span>
       </div>
 
-      <!-- RIGHT: Mute + settings -->
       <div class="hdr-right">
         <button class="icon-btn" id="btn-mute" title="Toggle Sound">
           <svg id="mute-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -131,36 +106,26 @@
           </svg>
         </button>
       </div>
-
     </header>
 
-    <!-- ── MAIN 3-COLUMN LAYOUT ── -->
     <div class="game-body">
 
-      <!-- COLUMN 1: Leaderboard -->
       <aside class="panel leaderboard-panel glass" id="leaderboard-panel">
         <div class="panel-title">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
           Players
         </div>
-        <ul class="player-list" id="player-list">
-          <!-- rendered by JS -->
-        </ul>
+        <ul class="player-list" id="player-list"></ul>
       </aside>
 
-      <!-- COLUMN 2: Canvas + Toolbar -->
       <main class="canvas-col">
-
-        <!-- Canvas wrapper -->
         <div class="canvas-wrap" id="canvas-wrap">
           <canvas id="game-canvas"></canvas>
 
-          <!-- WAITING OVERLAY -->
           <div class="overlay waiting-overlay glass" id="overlay-waiting">
             <div class="overlay-inner">
               <div class="wait-spinner">⏳</div>
               <h3>Waiting for players…</h3>
-              <p>Share this link to invite friends and start drawing!</p>
               <div class="share-link-box">
                 <span class="share-link-text" id="share-link">picazo.app/room/DEMO</span>
                 <button class="copy-btn" id="btn-copy-link">Copy</button>
@@ -168,121 +133,85 @@
             </div>
           </div>
 
-          <!-- WORD SELECT OVERLAY -->
-          <div class="overlay word-select-overlay" id="overlay-word-select">
+          <div class="overlay word-select-overlay hidden" id="overlay-word-select">
             <div class="ws-inner">
               <div class="ws-header">
                 <h2>Choose a word to draw!</h2>
-                <p>Pick wisely — you have <span id="ws-timer">15</span> seconds</p>
+                <p>Pick wisely — <span id="ws-timer">15</span>s</p>
               </div>
-              <div class="ws-timer-bar-wrap">
-                <div class="ws-timer-bar" id="ws-timer-bar"></div>
-              </div>
-              <div class="ws-cards" id="ws-cards">
-                <!-- injected by JS -->
-              </div>
+              <div class="ws-timer-bar-wrap"><div class="ws-timer-bar" id="ws-timer-bar"></div></div>
+              <div class="ws-cards" id="ws-cards"></div>
             </div>
           </div>
 
-          <!-- ROUND END OVERLAY -->
           <div class="overlay round-end-overlay hidden" id="overlay-round-end">
             <div class="re-inner glass-strong">
               <div class="re-emoji" id="re-emoji">⏰</div>
               <h2 id="re-title">Round Over!</h2>
-              <p id="re-word">The word was: <strong id="re-word-val">—</strong></p>
+              <p id="re-word">Word: <strong id="re-word-val">—</strong></p>
               <div class="re-scores" id="re-scores"></div>
-              <div class="re-next" id="re-next">Next round in <span id="re-countdown">5</span>s…</div>
+              <div class="re-next" id="re-next">Next in <span id="re-countdown">5</span>s…</div>
             </div>
           </div>
-
         </div>
 
-        <!-- TOOLBAR PILL -->
-        <div class="toolbar glass" id="toolbar">
+        <div class="toolbar-dark" id="toolbar">
+          
+          <button class="tool-btn active" id="tool-pencil" data-tool="pencil" title="Pencil">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+          </button>
 
-          <!-- Drawing tools -->
-          <div class="toolbar-group">
-            <button class="tool-btn active" id="tool-pencil" data-tool="pencil" title="Pencil">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+          <div class="tool-popup-wrap">
+            <button class="tool-btn" id="btn-color-popup" title="Color">
+              <div class="color-indicator-ring">
+                <div class="color-indicator" id="color-indicator" style="background:#000000;"></div>
+              </div>
             </button>
-            <button class="tool-btn" id="tool-brush" data-tool="brush" title="Brush">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.06 11.9l8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08"/><path d="M7.07 14.94C5.79 17.45 4.05 19 2 19s2.79-3.65 4.94-6.07"/></svg>
-            </button>
-            <button class="tool-btn" id="tool-eraser" data-tool="eraser" title="Eraser">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20H7L3 16l11-11 6 6-3.5 3.5"/><path d="M6.5 17.5l-1-1"/></svg>
-            </button>
-            <button class="tool-btn" id="tool-fill" data-tool="fill" title="Fill Bucket">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 11l-8-8-8.5 8.5a5.5 5.5 0 0 0 7.78 7.78L19 11z"/><line x1="16.5" y1="15.5" x2="22" y2="21"/></svg>
-            </button>
-          </div>
-
-          <div class="toolbar-sep"></div>
-
-          <!-- Shapes -->
-          <div class="toolbar-group">
-            <button class="tool-btn" id="tool-line" data-tool="line" title="Line">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="19" x2="19" y2="5"/></svg>
-            </button>
-            <button class="tool-btn" id="tool-rect" data-tool="rect" title="Rectangle">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
-            </button>
-            <button class="tool-btn" id="tool-circle" data-tool="circle" title="Circle">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
-            </button>
-          </div>
-
-          <div class="toolbar-sep"></div>
-
-          <!-- Brush size -->
-          <div class="toolbar-group brush-group">
-            <span class="group-label">Size</span>
-            <div class="brush-dots" id="brush-dots">
-              <button class="brush-dot active" data-size="3" style="width:8px;height:8px" title="Small"></button>
-              <button class="brush-dot" data-size="8" style="width:13px;height:13px" title="Medium"></button>
-              <button class="brush-dot" data-size="16" style="width:19px;height:19px" title="Large"></button>
-              <button class="brush-dot" data-size="28" style="width:26px;height:26px" title="XL"></button>
-            </div>
-          </div>
-
-          <div class="toolbar-sep"></div>
-
-          <!-- Color palette -->
-          <div class="toolbar-group color-group">
-            <span class="group-label">Color</span>
-            <div class="color-palette" id="color-palette">
-              <!-- injected by JS -->
-            </div>
-            <!-- Active color preview + custom picker -->
-            <div class="color-active-wrap">
-              <div class="color-active" id="color-active"></div>
+            <div class="tool-popup hidden" id="popup-color">
+              <div class="color-grid" id="color-palette"></div>
               <input type="color" id="color-picker" value="#000000" title="Custom color" />
             </div>
           </div>
 
-          <div class="toolbar-sep"></div>
-
-          <!-- Actions -->
-          <div class="toolbar-group">
-            <button class="tool-btn action-btn" id="tool-undo" title="Undo">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+          <div class="tool-popup-wrap">
+            <button class="tool-btn" id="btn-size-popup" title="Size">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2" fill="currentColor"/></svg>
             </button>
-            <button class="tool-btn action-btn danger-btn" id="tool-clear" title="Clear Canvas">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-            </button>
+            <div class="tool-popup hidden" id="popup-size">
+              <div class="size-label">Size: <span id="size-val-txt">3px</span></div>
+              <input type="range" class="size-slider" id="size-slider" min="1" max="40" value="3" />
+            </div>
           </div>
 
+          <button class="tool-btn" id="tool-rect" data-tool="rect" title="Rectangle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+          </button>
+          
+          <button class="tool-btn" id="tool-fill" data-tool="fill" title="Fill Bucket">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 11l-8-8-8.5 8.5a5.5 5.5 0 0 0 7.78 7.78L19 11z"/><line x1="16.5" y1="15.5" x2="22" y2="21"/></svg>
+          </button>
+          
+          <button class="tool-btn" id="tool-eraser" data-tool="eraser" title="Eraser">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 20H7L3 16l11-11 6 6-3.5 3.5"/><path d="M6.5 17.5l-1-1"/></svg>
+          </button>
+          
+          <button class="tool-btn action-btn" id="tool-undo" title="Undo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+          </button>
+          
+          <button class="tool-btn action-btn" id="tool-clear" title="Clear Canvas">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          </button>
+          
         </div>
       </main>
 
-      <!-- COLUMN 3: Chat / Guesses -->
       <aside class="panel chat-panel glass" id="chat-panel">
         <div class="panel-title">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
           Guesses
         </div>
-        <div class="chat-messages" id="chat-messages">
-          <!-- messages rendered by JS -->
-        </div>
+        <div class="chat-messages" id="chat-messages"></div>
         <div class="chat-input-row">
           <input type="text" id="chat-input" class="chat-input" placeholder="Type your guess…" maxlength="80" autocomplete="off" spellcheck="false" />
           <button class="chat-send-btn" id="btn-chat-send" aria-label="Send">
@@ -291,18 +220,11 @@
         </div>
       </aside>
 
-    </div><!-- /game-body -->
+    </div>
+  </div>
 
-  </div><!-- /screen-game -->
-
-  <!-- =====================================================
-       TOAST CONTAINER
-  ====================================================== -->
   <div class="toast-container" id="toast-container"></div>
 
-  <!-- =====================================================
-       CONTEXT MENU
-  ====================================================== -->
   <div class="context-menu glass-strong hidden" id="context-menu">
     <div class="ctx-head" id="ctx-head">
       <div class="ctx-av" id="ctx-av"></div>
@@ -319,19 +241,12 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
       Mute Player
     </button>
-    <button class="ctx-btn" id="ctx-report">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
-      Report
-    </button>
     <button class="ctx-btn ctx-close" id="ctx-close">Cancel</button>
   </div>
 
-  <!-- =====================================================
-       VOTE TO KICK BANNER
-  ====================================================== -->
   <div class="vote-banner glass-strong hidden" id="vote-banner">
     <div class="vote-banner-body">
-      <strong id="vote-title">Vote to kick Player?</strong>
+      <strong id="vote-title">Vote to kick?</strong>
       <span id="vote-sub">2 of 3 votes needed</span>
     </div>
     <button class="vote-kick-btn" id="btn-vote-yes">Kick 👢</button>
