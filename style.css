@@ -39,7 +39,7 @@
   --radius-sm:   10px;
   --radius-pill: 100px;
   
-  /* UPGRADED: Fluid, bouncy spring animation curve */
+  /* Fluid, bouncy spring animation curve */
   --transition:  all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 
   /* Fonts */
@@ -499,7 +499,7 @@ html, body {
   border: 1.5px solid var(--border);
   box-shadow: 0 8px 32px rgba(60,110,200,0.16);
   background: #fff;
-  min-height: 0;
+  min-height: 250px;
   cursor: crosshair;
 }
 #game-canvas {
@@ -648,14 +648,16 @@ html, body {
 
 /* ── TOOLBAR ── */
 .toolbar {
-  border-radius: var(--radius-pill);
-  padding: 7px 14px;
+  border-radius: var(--radius-md);
+  padding: 8px 10px;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 8px;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   flex-shrink: 0;
+  width: 100%;
 }
 .toolbar::-webkit-scrollbar { display: none; }
 .toolbar-group { display: flex; align-items: center; gap: 3px; }
@@ -704,7 +706,7 @@ html, body {
 
 /* Color palette */
 .color-group { gap: 8px; align-items: center; }
-.color-palette { display: flex; flex-wrap: wrap; gap: 5px; max-width: 240px; }
+.color-palette { display: flex; flex-wrap: nowrap; gap: 6px; }
 .c-swatch {
   width: 22px; height: 22px;
   border-radius: 50%;
@@ -911,14 +913,14 @@ html, body {
     height: 200px;
   }
 
-  .toolbar { padding: 5px 10px; gap: 2px; }
-  .tool-btn { width: 32px; height: 32px; }
+  .toolbar { padding: 8px; gap: 4px; border-radius: var(--radius-sm); }
+  .tool-btn { width: 32px; height: 32px; flex-shrink: 0; }
   .tool-btn svg { width: 14px; height: 14px; }
-  .c-swatch { width: 19px; height: 19px; }
-  .color-palette { max-width: 180px; }
-  .brush-dots { gap: 6px; }
+  .c-swatch { width: 22px; height: 22px; flex-shrink: 0; }
+  .color-palette { max-width: max-content; }
+  .brush-dots { gap: 6px; flex-shrink: 0; }
   .group-label { display: none; }
-  .toolbar-sep { height: 22px; margin: 0 3px; }
+  .toolbar-sep { height: 20px; margin: 0 4px; flex-shrink: 0; }
 
   .ws-cards { gap: 10px; }
   .ws-card { padding: 14px 16px; min-width: 90px; }
