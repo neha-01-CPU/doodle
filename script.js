@@ -1,5 +1,5 @@
 /* ================================================================
-   PICAZO — script.js
+   PICAZO — script.js (MOBILE OPTIMIZED)
    Complete game logic: Canvas drawing, Timer, Word selection,
    Chat/guessing, Leaderboard, Toasts, Context menu, Vote kick
 ================================================================ */
@@ -259,7 +259,7 @@ let S = {
   // Game
   players: [],
   myId: 'me',
-  drawerIdx: 0,       // index into players[] of current drawer
+  drawerIdx: 0,       
   round: 1,
   currentWord: '',
   revealedIdx: [],
@@ -275,7 +275,7 @@ let S = {
   tool: 'pencil',
   color: '#000000',
   brushSize: 3,
-  strokes: [],        // imageData snapshots for undo
+  strokes: [],        
   shapeStart: null,
   snapBeforeShape: null,
   isDrawer: false,
@@ -283,9 +283,10 @@ let S = {
   // UI
   isMuted: false,
   ctxTarget: null,
+  dpr: window.devicePixelRatio || 1 // Track Device Pixel Ratio for HD Canvas
 };
 
-const CIRC = 2 * Math.PI * 25; // timer ring circumference
+const CIRC = 2 * Math.PI * 25; 
 
 /* ================================================================
    DOM REFS
@@ -325,7 +326,7 @@ const btnChatSend  = $('btn-chat-send');
 // Canvas
 const gameCanvas = $('game-canvas');
 const canvasWrap = $('canvas-wrap');
-const ctx        = gameCanvas.getContext('2d');
+const ctx        = gameCanvas.getContext('2d', { willReadFrequently: true });
 
 // Overlays
 const overlayWaiting   = $('overlay-waiting');
@@ -411,7 +412,6 @@ btnPlay.addEventListener('click', () => {
 });
 inpName.addEventListener('keydown', e => { if (e.key === 'Enter') btnPlay.click(); });
 
-// Copy link
 btnCopyLink.addEventListener('click', () => {
   navigator.clipboard.writeText(window.location.href).catch(() => {});
   btnCopyLink.textContent = 'Copied!';
@@ -433,9 +433,6 @@ function transitionToGame() {
   }, 420);
 }
 
-/* ================================================================
-   MOBILE LAYOUT — wrap leaderboard + chat in a .bottom-row
-================================================================ */
 function setupMobileLayout() {
   const isMobile = window.innerWidth < 768;
   const gameBody = document.querySelector('.game-body');
@@ -452,7 +449,6 @@ function setupMobileLayout() {
     if (!bottomRow.contains(lbPanel))  bottomRow.appendChild(lbPanel);
     if (!bottomRow.contains(chatPanel)) bottomRow.appendChild(chatPanel);
   } else {
-    // Desktop: panels go directly in game-body
     if (bottomRow) {
       gameBody.insertBefore(lbPanel, gameBody.firstChild);
       gameBody.appendChild(chatPanel);
@@ -475,10 +471,8 @@ function initGame() {
   initCanvas();
   setupMobileLayout();
 
-  // Hide waiting (we have players)
   overlayWaiting.classList.add('hidden');
 
-  // Greet
   addChat('system', '', '🎨 Welcome to Picazo! Game is starting…');
   addChat('system', '', `${S.players[S.drawerIdx].name} draws first!`);
 
@@ -498,7 +492,6 @@ const BOT_NAMES = ['SketchBot','ArtGeek','DrawMaster','DoodleKing','PicassoJr','
 
 function buildPlayers() {
   S.players = [];
-  // Me
   S.players.push({
     id: S.myId,
     name: S.playerName,
@@ -507,7 +500,6 @@ function buildPlayers() {
     isSelf: true,
     guessed: false,
   });
-  // Bots
   const shuffledBots = BOT_NAMES.slice().sort(() => Math.random() - 0.5);
   const shuffledAvs  = AVATAR_DEFS.slice(1).sort(() => Math.random() - 0.5);
   for (let i = 0; i < S.botCount - 1; i++) {
@@ -536,11 +528,9 @@ function buildLeaderboard() {
       + (p.id === S.players[S.drawerIdx]?.id ? ' is-drawing' : '')
       + (p.guessed ? ' guessed' : '');
 
-    // Rank medal
     const rankClass = rank === 0 ? 'gold' : rank === 1 ? 'silver' : rank === 2 ? 'bronze' : '';
     const rankSymbol = rank === 0 ? '🥇' : rank === 1 ? '🥈' : rank === 2 ? '🥉' : (rank + 1);
 
-    // Avatar canvas
     const avWrap = document.createElement('div');
     avWrap.className = 'pi-av';
     const avC = document.createElement('canvas');
@@ -548,9 +538,7 @@ function buildLeaderboard() {
     drawAvatar(avC, p.avatarDef, 32);
     avWrap.appendChild(avC);
 
-    li.innerHTML = `
-      <div class="pi-rank ${rankClass}">${rankSymbol}</div>
-    `;
+    li.innerHTML = `<div class="pi-rank ${rankClass}">${rankSymbol}</div>`;
     li.appendChild(avWrap);
     li.insertAdjacentHTML('beforeend', `
       <div class="pi-info">
@@ -558,14 +546,13 @@ function buildLeaderboard() {
         <div class="pi-score">${p.score} pts</div>
       </div>
     `);
-    // Badge
+    
     if (p.id === S.players[S.drawerIdx]?.id) {
       li.insertAdjacentHTML('beforeend', `<span class="pi-badge drawing">✏️</span>`);
     } else if (p.guessed) {
       li.insertAdjacentHTML('beforeend', `<span class="pi-badge guessed">✅</span>`);
     }
 
-    // Click → context menu (not self)
     if (!p.isSelf) {
       li.style.cursor = 'pointer';
       li.addEventListener('click', e => openContextMenu(e, p));
@@ -583,15 +570,12 @@ function updateRoundBadge() {
    WORD SELECTION PHASE
 ================================================================ */
 function startWordSelection() {
-  // Reset guessed
   S.players.forEach(p => p.guessed = false);
   S.guessedIds.clear();
   buildLeaderboard();
 
-  // Show overlay
   overlayWordSelect.classList.remove('hidden');
 
-  // Pick 3 words
   const choices = shuffled(WORD_BANK).slice(0, 3);
   wsCards.innerHTML = '';
   choices.forEach(w => {
@@ -608,7 +592,6 @@ function startWordSelection() {
     wsCards.appendChild(card);
   });
 
-  // Timer bar
   let t = 15;
   wsClock.textContent = t;
   wsTimerBar.style.transition = 'none';
@@ -622,13 +605,10 @@ function startWordSelection() {
     wsTimerBar.style.width = (t / 15 * 100) + '%';
     if (t <= 0) {
       clearInterval(S.wsTimerInterval);
-      // Auto-pick first word if drawer, otherwise pick randomly
-      const fallback = choices[0].w;
-      chooseWord(fallback);
+      chooseWord(choices[0].w);
     }
   }, 1000);
 
-  // If not drawer: auto-pick for bot drawer after 4s
   if (!S.isDrawer) {
     setTimeout(() => {
       if (!overlayWordSelect.classList.contains('hidden')) {
@@ -649,7 +629,6 @@ function chooseWord(word) {
   const drawerName = S.players[S.drawerIdx].name;
   addChat('system', '', `${drawerName} is now drawing! 🖊️`);
 
-  // Bot guesses
   scheduleBotGuesses();
 }
 
@@ -706,7 +685,6 @@ function revealHintLetter() {
   if (unrevealed.length <= 1) return;
   const pick = unrevealed[Math.floor(Math.random() * unrevealed.length)];
   S.revealedIdx.push(pick);
-  // Animate that char
   renderWordBlanks();
   showToast('💡 A hint letter was revealed!', 't-info');
 }
@@ -752,7 +730,6 @@ function endRound(allGuessed = false) {
   const word = S.currentWord;
   addChat('system', '', `⏰ Round over! The word was: "${word}"`);
 
-  // Award drawer bonus
   const guessedCount = S.guessedIds.size;
   if (guessedCount > 0) {
     const drawer = S.players[S.drawerIdx];
@@ -761,7 +738,6 @@ function endRound(allGuessed = false) {
     showToast(`✏️ ${drawer.name} earned ${bonus} pts for drawing!`, 't-info');
   }
 
-  // Build round-end scores
   const sorted = [...S.players].sort((a, b) => b.score - a.score);
   reEmoji.textContent = allGuessed ? '🎉' : '⏰';
   reTitle.textContent = allGuessed ? 'Everyone guessed it!' : 'Round Over!';
@@ -775,7 +751,6 @@ function endRound(allGuessed = false) {
 
   overlayRoundEnd.classList.remove('hidden');
 
-  // Countdown to next round
   let cd = 5;
   reCountdown.textContent = cd;
   reNext.style.display = '';
@@ -797,13 +772,11 @@ function nextRound() {
     return;
   }
 
-  // Advance drawer
   S.drawerIdx = (S.drawerIdx + 1) % S.players.length;
   S.isDrawer = S.players[S.drawerIdx].id === S.myId;
 
   updateRoundBadge();
 
-  // Clear canvas
   ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
   S.strokes = [];
   S.currentWord = '';
@@ -821,7 +794,6 @@ function endGame() {
   addChat('system', '', `🏆 Game Over! Winner: ${winner.name} with ${winner.score} pts!`);
   showToast(`🏆 ${winner.name} wins! GG!`, 't-info');
 
-  // Show final leaderboard
   overlayRoundEnd.classList.remove('hidden');
   reEmoji.textContent = '🏆';
   reTitle.textContent = 'Game Over!';
@@ -850,13 +822,11 @@ function scheduleBotGuesses() {
   ];
 
   bots.forEach((bot, idx) => {
-    // Each bot guesses between 8-25 seconds in
     const delay = 8000 + idx * 3000 + Math.random() * 6000;
     setTimeout(() => {
       if (!S.currentWord) return;
       if (bot.guessed) return;
 
-      // 40% chance bot "guesses" correctly near end
       const ratio = S.timeLeft / S.drawTime;
       const guessCorrect = ratio < 0.5 && Math.random() < 0.4;
 
@@ -879,7 +849,6 @@ function botGuessCorrect(bot) {
   showToast(`✅ ${bot.name} guessed it!`, 't-correct');
   buildLeaderboard();
 
-  // All players guessed?
   const nonDrawers = S.players.filter(p => p.id !== S.players[S.drawerIdx]?.id);
   if (nonDrawers.every(p => p.guessed)) {
     clearInterval(S.timerInterval);
@@ -888,62 +857,80 @@ function botGuessCorrect(bot) {
 }
 
 /* ================================================================
-   CANVAS DRAWING
+   CANVAS DRAWING (MOBILE OPTIMIZED: PointerEvents + DPR)
 ================================================================ */
 function initCanvas() {
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
 
-  // Mouse
-  gameCanvas.addEventListener('mousedown',  onPointerDown);
-  gameCanvas.addEventListener('mousemove',  onPointerMove);
-  gameCanvas.addEventListener('mouseup',    onPointerUp);
-  gameCanvas.addEventListener('mouseleave', onPointerUp);
-
-  // Touch — CRITICAL: passive: false to prevent scroll
-  gameCanvas.addEventListener('touchstart',  onTouchDown,  { passive: false });
-  gameCanvas.addEventListener('touchmove',   onTouchMove,  { passive: false });
-  gameCanvas.addEventListener('touchend',    onTouchUp,    { passive: false });
-  gameCanvas.addEventListener('touchcancel', onTouchUp,    { passive: false });
+  // UPGRADE: Unified Pointer Events for flawless mobile drawing
+  gameCanvas.addEventListener('pointerdown',   onPointerDown);
+  gameCanvas.addEventListener('pointermove',   onPointerMove);
+  gameCanvas.addEventListener('pointerup',     onPointerUp);
+  gameCanvas.addEventListener('pointercancel', onPointerUp);
 }
 
 function resizeCanvas() {
   const W = canvasWrap.clientWidth;
   const H = canvasWrap.clientHeight;
   if (W === 0 || H === 0) return;
-  // Preserve drawing
+
+  S.dpr = window.devicePixelRatio || 1;
+
   let snap = null;
   if (gameCanvas.width > 0 && gameCanvas.height > 0) {
     try { snap = ctx.getImageData(0, 0, gameCanvas.width, gameCanvas.height); } catch(e){}
   }
-  gameCanvas.width  = W;
-  gameCanvas.height = H;
+
+  // 1. Scale internal resolution for crisp HD
+  gameCanvas.width  = W * S.dpr;
+  gameCanvas.height = H * S.dpr;
+  
+  // 2. Set CSS display size
+  gameCanvas.style.width  = W + 'px';
+  gameCanvas.style.height = H + 'px';
+
+  // 3. Normalize coordinates so we can still code using CSS pixels
+  ctx.scale(S.dpr, S.dpr);
   ctx.lineCap   = 'round';
   ctx.lineJoin  = 'round';
-  if (snap) ctx.putImageData(snap, 0, 0);
+
+  // Restore drawing if we had one
+  if (snap) {
+    const temp = document.createElement('canvas');
+    temp.width = snap.width; temp.height = snap.height;
+    temp.getContext('2d').putImageData(snap, 0, 0);
+    ctx.drawImage(temp, 0, 0, W, H);
+  }
 }
 
-function getXY(e) {
+function getPointerXY(e) {
   const r = gameCanvas.getBoundingClientRect();
-  const sx = gameCanvas.width  / r.width;
-  const sy = gameCanvas.height / r.height;
-  return { x: (e.clientX - r.left) * sx, y: (e.clientY - r.top) * sy };
-}
-function getTouchXY(e) {
-  e.preventDefault();
-  const t = e.touches[0] || e.changedTouches[0];
-  const r = gameCanvas.getBoundingClientRect();
-  const sx = gameCanvas.width  / r.width;
-  const sy = gameCanvas.height / r.height;
-  return { x: (t.clientX - r.left) * sx, y: (t.clientY - r.top) * sy };
+  // With PointerEvents and CSS mapping, we just need standard client bounds
+  return { 
+    x: e.clientX - r.left, 
+    y: e.clientY - r.top 
+  };
 }
 
-function onPointerDown(e) { if (S.isDrawer) pointerDown(getXY(e)); }
-function onPointerMove(e) { if (S.isDrawer && S.isDrawing) pointerMove(getXY(e)); }
-function onPointerUp(e)   { if (S.isDrawer) pointerUp(getXY(e)); }
-function onTouchDown(e)   { if (S.isDrawer) pointerDown(getTouchXY(e)); }
-function onTouchMove(e)   { if (S.isDrawer && S.isDrawing) pointerMove(getTouchXY(e)); }
-function onTouchUp(e)     { if (S.isDrawer) pointerUp(getTouchXY(e)); }
+function onPointerDown(e) { 
+  if (S.isDrawer) {
+    // Locks the pointer to the canvas so drawing continues even if finger slips off edge
+    gameCanvas.setPointerCapture(e.pointerId); 
+    pointerDown(getPointerXY(e)); 
+  }
+}
+
+function onPointerMove(e) { 
+  if (S.isDrawer && S.isDrawing) pointerMove(getPointerXY(e)); 
+}
+
+function onPointerUp(e) { 
+  if (S.isDrawer) {
+    gameCanvas.releasePointerCapture(e.pointerId);
+    pointerUp(getPointerXY(e)); 
+  }
+}
 
 function isShape() { return S.tool === 'line' || S.tool === 'rect' || S.tool === 'circle'; }
 
@@ -1035,12 +1022,14 @@ function saveStroke() {
   ctx.globalCompositeOperation = 'source-over';
 }
 
-/* ── Flood Fill ── */
+/* ── Flood Fill (DPR Scaled) ── */
 function floodFill(startX, startY, fillHex) {
   const w = gameCanvas.width, h = gameCanvas.height;
   const id = ctx.getImageData(0, 0, w, h);
   const d  = id.data;
-  const xi = Math.round(startX), yi = Math.round(startY);
+  
+  // Must scale the CSS click coordinates up to match the High-Res Canvas pixels
+  const xi = Math.round(startX * S.dpr), yi = Math.round(startY * S.dpr);
   if (xi < 0 || xi >= w || yi < 0 || yi >= h) return;
 
   const idx = (yi * w + xi) * 4;
@@ -1087,13 +1076,11 @@ function hexToRgb(hex) {
    TOOLBAR
 ================================================================ */
 function setupToolbar() {
-  // Tool buttons
   ['pencil','brush','eraser','fill','line','rect','circle'].forEach(t => {
     const btn = $('tool-' + t);
     if (btn) btn.addEventListener('click', () => selectTool(t));
   });
 
-  // Brush dots
   document.querySelectorAll('.brush-dot').forEach(dot => {
     dot.addEventListener('click', () => {
       S.brushSize = +dot.dataset.size;
@@ -1102,7 +1089,6 @@ function setupToolbar() {
     });
   });
 
-  // Undo
   $('tool-undo').addEventListener('click', () => {
     if (S.strokes.length > 1) {
       S.strokes.pop();
@@ -1113,15 +1099,11 @@ function setupToolbar() {
     }
   });
 
-  // Clear
   $('tool-clear').addEventListener('click', () => {
     ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
     S.strokes = [];
     showToast('🗑️ Canvas cleared', 't-info');
   });
-
-  // Hide toolbar if not drawer
-  // (keep visible but disable; drawer flag checked in pointer events)
 }
 
 function selectTool(tool) {
@@ -1129,7 +1111,6 @@ function selectTool(tool) {
   document.querySelectorAll('.tool-btn[data-tool]').forEach(b => b.classList.remove('active'));
   const btn = $('tool-' + tool);
   if (btn) btn.classList.add('active');
-  // Cursor
   gameCanvas.className = tool === 'eraser' ? 'eraser' : '';
   canvasWrap.className = 'canvas-wrap' + (tool === 'fill' ? ' fill-mode' : '');
 }
@@ -1151,7 +1132,6 @@ function buildColorPalette() {
   colorActive.style.background = S.color;
   colorPicker.value = S.color;
 
-  // Custom picker
   colorActive.addEventListener('click', () => colorPicker.click());
   colorPicker.addEventListener('input', e => pickColor(e.target.value));
 }
@@ -1179,9 +1159,7 @@ function sendGuess() {
   if (!val) return;
   chatInput.value = '';
 
-  // Is drawer? just chat
   if (S.isDrawer) { addChat('normal', S.playerName, val); return; }
-  // Already guessed?
   if (S.guessedIds.has(S.myId)) { addChat('normal', S.playerName, val); return; }
 
   const correct = S.currentWord && val.toLowerCase() === S.currentWord.toLowerCase();
@@ -1194,7 +1172,6 @@ function sendGuess() {
     showToast(`✅ You guessed it! +${pts} pts`, 't-correct');
     buildLeaderboard();
 
-    // Check all guessed
     const nonDrawers = S.players.filter(p => p.id !== S.players[S.drawerIdx]?.id);
     if (nonDrawers.every(p => p.guessed)) {
       clearInterval(S.timerInterval);
@@ -1250,7 +1227,6 @@ function showToast(msg, type = 't-info') {
    CONTEXT MENU
 ================================================================ */
 function setupContextMenu() {
-  // Close on outside click
   document.addEventListener('click', e => {
     if (!contextMenu.contains(e.target)) contextMenu.classList.add('hidden');
   });
@@ -1276,7 +1252,6 @@ function openContextMenu(e, player) {
   ctxName.textContent = player.name;
   ctxPts.textContent  = player.score + ' pts';
 
-  // Draw avatar in ctx
   ctxAv.innerHTML = '';
   const c = document.createElement('canvas');
   c.width = 34; c.height = 34;
@@ -1338,7 +1313,6 @@ function escHtml(str) {
 buildAvDots();
 setAvatar(0);
 
-// Handle page resize for already-active game screen
 window.addEventListener('resize', () => {
   if (screenGame.classList.contains('active')) resizeCanvas();
 });
