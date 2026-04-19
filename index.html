@@ -11,17 +11,12 @@
 </head>
 <body>
 
-<!-- ── BACKGROUND BLOBS ── -->
 <div class="bg-blob blob-1"></div>
 <div class="bg-blob blob-2"></div>
 <div class="bg-blob blob-3"></div>
 
-<!-- ════════════════════════════════════════════
-     SCREEN 1 — LOBBY
-════════════════════════════════════════════ -->
 <div id="screen-lobby" class="screen active">
   <div class="lobby-card glass-strong">
-    <!-- Logo -->
     <div class="lobby-header">
       <div class="logo-wrap">
         <span class="logo-icon">🎨</span>
@@ -30,7 +25,6 @@
       <p class="lobby-tagline">Sketch it. Guess it. Win it.</p>
     </div>
 
-    <!-- Name -->
     <div class="section-block">
       <label class="section-label">Your Name</label>
       <input id="inp-name" class="name-input" type="text" placeholder="Enter your name…" maxlength="16" autocomplete="off" spellcheck="false">
@@ -52,39 +46,6 @@
       <div id="av-dots" class="av-dots"></div>
     </div>
 
-    <!-- Settings Row -->
-    <div class="section-block settings-row">
-      <div class="setting-item">
-        <label class="setting-label">Rounds</label>
-        <select id="sel-rounds" class="setting-sel">
-          <option value="3">3</option>
-          <option value="4">4</option>
-          <option value="5" selected>5</option>
-          <option value="6">6</option>
-          <option value="8">8</option>
-        </select>
-      </div>
-      <div class="setting-item">
-        <label class="setting-label">Draw Time</label>
-        <select id="sel-time" class="setting-sel">
-          <option value="100" selected>100s</option>
-          <option value="120">120s</option>
-          <option value="150">150s</option>
-          <option value="180">180s</option>
-        </select>
-      </div>
-      <div class="setting-item">
-        <label class="setting-label">Players</label>
-        <select id="sel-bots" class="setting-sel">
-          <option value="4">4</option>
-          <option value="6">6</option>
-          <option value="8" selected>8</option>
-          <option value="10">10</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- Buttons -->
     <div class="section-block btn-stack">
       <button id="btn-play" class="primary-btn glow-btn">
         <span class="btn-icon">🎮</span> PLAY NOW
@@ -96,9 +57,6 @@
   </div>
 </div>
 
-<!-- ════════════════════════════════════════════
-     PRIVATE ROOM MODAL
-════════════════════════════════════════════ -->
 <div id="modal-private" class="modal-backdrop hidden">
   <div class="modal-card glass-strong">
     <h2 class="modal-title">🔒 Create Private Room</h2>
@@ -163,14 +121,9 @@
   </div>
 </div>
 
-<!-- ════════════════════════════════════════════
-     SCREEN 2 — GAME
-════════════════════════════════════════════ -->
 <div id="screen-game" class="screen">
 
-  <!-- ── GAME HEADER ── -->
   <div class="game-header glass">
-    <!-- Timer Ring -->
     <div class="timer-ring-wrap" id="timer-wrap">
       <svg class="timer-svg" viewBox="0 0 60 60">
         <circle class="t-bg" cx="30" cy="30" r="25"/>
@@ -179,13 +132,11 @@
       <span id="timer-num" class="timer-num">100</span>
     </div>
 
-    <!-- Word Blanks -->
     <div class="word-area">
       <div id="word-display" class="word-display"></div>
       <div id="word-meta" class="word-meta"></div>
     </div>
 
-    <!-- Right controls -->
     <div class="header-right">
       <span id="round-badge" class="round-badge">Round 1/3</span>
       <button id="btn-mute" class="icon-btn" title="Mute/Unmute">
@@ -197,21 +148,17 @@
     </div>
   </div>
 
-  <!-- ── GAME BODY ── -->
   <div class="game-body">
 
-    <!-- Leaderboard -->
     <div id="leaderboard-panel" class="panel glass">
       <h3 class="panel-title">🏆 Players</h3>
       <ul id="player-list" class="player-list"></ul>
     </div>
 
-    <!-- Canvas Column -->
     <div class="canvas-col">
       <div id="canvas-wrap" class="canvas-wrap">
         <canvas id="game-canvas"></canvas>
 
-        <!-- Overlay: Waiting for drawer -->
         <div id="overlay-waiting" class="overlay waiting-overlay hidden">
           <div class="overlay-inner">
             <span class="wait-spinner">🎨</span>
@@ -224,7 +171,6 @@
           </div>
         </div>
 
-        <!-- Overlay: Word Select -->
         <div id="overlay-word-select" class="overlay word-select-overlay hidden">
           <div class="ws-inner">
             <div class="ws-header">
@@ -236,7 +182,6 @@
           </div>
         </div>
 
-        <!-- Overlay: Round End -->
         <div id="overlay-round-end" class="overlay round-end-overlay hidden">
           <div class="re-inner glass-strong">
             <div id="re-emoji" class="re-emoji">🎉</div>
@@ -248,7 +193,6 @@
         </div>
       </div>
 
-      <!-- Toolbar -->
       <div id="toolbar" class="toolbar-glass">
         <button class="tool-btn active" id="tool-pencil" data-tool="pencil" title="Pencil">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
@@ -293,44 +237,8 @@
           <div class="size-preview-wrap"><div id="size-preview" class="size-preview"></div></div>
         </div>
       </div>
-
-        <!-- Color -->
-        <button class="tool-btn color-btn" id="btn-color-popup" title="Colors">
-          <div id="color-indicator" class="color-indicator-ring" style="background:#000"></div>
-        </button>
-
-        <!-- Size -->
-        <button class="tool-btn" id="btn-size-popup" title="Brush Size">
-          <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/></svg>
-        </button>
-
-        <div class="tool-divider"></div>
-
-        <!-- Undo -->
-        <button class="tool-btn" id="tool-undo" title="Undo">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
-        </button>
-        <!-- Clear -->
-        <button class="tool-btn danger" id="tool-clear" title="Clear Canvas">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-        </button>
-
-        <!-- Color Popup -->
-        <div id="popup-color" class="tool-popup glass-strong hidden">
-          <div id="color-palette" class="color-palette"></div>
-          <input id="color-picker" type="color" class="native-picker" value="#000000">
-        </div>
-
-        <!-- Size Popup -->
-        <div id="popup-size" class="tool-popup glass-strong hidden">
-          <label class="size-label-txt">Size: <strong id="size-val-txt">3px</strong></label>
-          <input id="size-slider" class="size-slider" type="range" min="1" max="40" value="3">
-          <div class="size-preview-wrap"><div id="size-preview" class="size-preview"></div></div>
-        </div>
-      </div>
     </div>
 
-    <!-- Chat Panel -->
     <div id="chat-panel" class="panel glass">
       <h3 class="panel-title">💬 Chat</h3>
       <div id="chat-messages" class="chat-messages"></div>
@@ -340,13 +248,7 @@
       </div>
     </div>
 
-  </div><!-- end .game-body -->
-</div><!-- end #screen-game -->
-
-<!-- ════════════════════════════════════════════
-     CONTEXT MENU (click player avatar)
-════════════════════════════════════════════ -->
-<div id="context-menu" class="context-menu glass-strong hidden">
+  </div></div><div id="context-menu" class="context-menu glass-strong hidden">
   <div class="ctx-head">
     <div id="ctx-av" class="ctx-av"></div>
     <div>
@@ -369,7 +271,6 @@
   <button class="ctx-btn ctx-close" id="ctx-close">✕ Close</button>
 </div>
 
-<!-- Vote Banner -->
 <div id="vote-banner" class="vote-banner glass-strong hidden">
   <div class="vote-banner-body">
     <strong id="vote-title">Vote to kick Player?</strong>
@@ -379,9 +280,6 @@
   <button id="btn-vote-no" class="vote-keep-btn">Keep</button>
 </div>
 
-<!-- ════════════════════════════════════════════
-     GLASSMORPHISM EVENT POPUP
-════════════════════════════════════════════ -->
 <div id="event-popup" class="event-popup hidden">
   <div class="event-popup-inner">
     <span id="event-popup-icon" class="event-icon">🎉</span>
@@ -389,7 +287,6 @@
   </div>
 </div>
 
-<!-- Toast Container -->
 <div id="toast-container" class="toast-container"></div>
 
 <script src="script.js"></script>
