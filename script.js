@@ -381,7 +381,6 @@ btnPlay.addEventListener('click', () => {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
   S.playerName  = name;
-  // Public defaults as requested
   S.totalRounds = 3;  
   S.drawTime    = 90; 
   S.botCount    = 12; 
@@ -716,12 +715,12 @@ function startRoundTimer() {
   S.timerInterval = setInterval(() => {
     S.timeLeft--;
     
-    // Hint reveal underneath 30s
+    // Slow hint reveal underneath 30s
     if (S.timeLeft <= 30 && S.timeLeft > 0 && S.timeLeft % 10 === 0) {
       revealHintLetter();
     }
     
-    // Ticking sound under 15s
+    // Play ticking sound under 15s
     if (S.timeLeft <= 15 && S.timeLeft > 0) {
       playTickSound();
     }
@@ -820,29 +819,15 @@ function endGame() {
 /* ════════════════════════════════════════════
    BOT GUESSING
 ════════════════════════════════════════════ */
-const FAKE_GUESSES = [
-  'is it a bird?','house!','maybe a cat?','hmm...','car?','tree!',
-  'airplane?','looks like a dog','flower?','mountain!','ship?','I think I know!',
-  'animal?','building!','food?','nature...','sports?','instrument?'
-];
 
 function scheduleBotGuesses() {
   const bots = S.players.filter(p => !p.isSelf && p.id !== S.players[S.drawerIdx]?.id);
   bots.forEach((bot, idx) => {
-    // Fake guess
-    const fakeDelay = 2000 + Math.random() * 3000;
+    // Super fast 100% correct guessing for testing
+    const correctDelay = 1000 + (idx * 500) + Math.random() * 1000;
     setTimeout(() => {
       if (!S.currentWord || bot.guessed) return;
-      addChat('normal', bot.name, FAKE_GUESSES[Math.floor(Math.random() * FAKE_GUESSES.length)]);
-    }, fakeDelay);
-
-    // Fast correct guess for testing
-    const correctDelay = 1500 + Math.random() * 2500;
-    setTimeout(() => {
-      if (!S.currentWord || bot.guessed) return;
-      if (Math.random() < 0.6) {
-        botGuessCorrect(bot);
-      }
+      botGuessCorrect(bot);
     }, correctDelay);
   });
 }
@@ -913,11 +898,55 @@ function getPointerXY(e) {
   return { x: e.clientX - r.left, y: e.clientY - r.top };
 }
 
+function floodFill(startX, startY, fillHex) {
+  const w = gameCanvas.width, h = gameCanvas.height;
+  const id = ctx.getImageData(0, 0, w, h);
+  const d  = id.data;
+  const xi = Math.round(startX * S.dpr), yi = Math.round(startY * S.dpr);
+  if (xi < 0 || xi >= w || yi < 0 || yi >= h) return;
+
+  const idx = (yi * w + xi) * 4;
+  const tr = d[idx], tg = d[idx+1], tb = d[idx+2], ta = d[idx+3];
+
+  const r = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(fillHex);
+  const fc = r ? { r: parseInt(r[1],16), g: parseInt(r[2],16), b: parseInt(r[3],16) } : null;
+  if (!fc || (tr===fc.r && tg===fc.g && tb===fc.b && ta===255)) return;
+
+  function match(i) {
+    return Math.abs(d[i]-tr)<30 && Math.abs(d[i+1]-tg)<30 &&
+           Math.abs(d[i+2]-tb)<30 && Math.abs(d[i+3]-ta)<30;
+  }
+
+  const stack = [xi + yi * w], seen = new Uint8Array(w * h);
+  while (stack.length) {
+    const p = stack.pop();
+    if (seen[p]) continue;
+    const x = p % w, y = Math.floor(p / w);
+    if (x < 0 || x >= w || y < 0 || y >= h) continue;
+    const i = p * 4;
+    if (!match(i)) continue;
+    seen[p] = 1;
+    d[i] = fc.r; d[i+1] = fc.g; d[i+2] = fc.b; d[i+3] = 255;
+    if (x+1 < w)  stack.push(p+1);
+    if (x-1 >= 0) stack.push(p-1);
+    if (y+1 < h)  stack.push(p+w);
+    if (y-1 >= 0) stack.push(p-w);
+  }
+  ctx.putImageData(id, 0, 0);
+  saveStroke();
+}
+
 function onPointerDown(e) {
   if (!S.isDrawer) return;
   gameCanvas.setPointerCapture(e.pointerId);
   S.isDrawing = true;
   const pos = getPointerXY(e);
+
+  if (S.tool === 'fill') {
+    floodFill(pos.x, pos.y, S.color);
+    S.isDrawing = false;
+    return;
+  }
 
   if (S.tool === 'rect' || S.tool === 'circle') {
     S.shapeStart = pos;
@@ -1010,7 +1039,7 @@ function saveStroke() {
    TOOLBAR SETUP
 ════════════════════════════════════════════ */
 function setupToolbar() {
-  ['pencil','rect','circle','eraser'].forEach(t => {
+  ['pencil','rect','circle','fill','eraser'].forEach(t => {
     const btn = $('tool-' + t);
     if (btn) btn.addEventListener('click', () => selectTool(t));
   });
