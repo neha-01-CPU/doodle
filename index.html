@@ -36,15 +36,18 @@
       <input id="inp-name" class="name-input" type="text" placeholder="Enter your name…" maxlength="16" autocomplete="off" spellcheck="false">
     </div>
 
-    <!-- Avatar Picker -->
     <div class="section-block">
       <label class="section-label">Choose Avatar</label>
       <div class="avatar-picker">
-        <button id="btn-av-prev" class="av-arrow" aria-label="Previous">&#8592;</button>
+        <button id="btn-av-prev" class="av-arrow" aria-label="Previous">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
         <div id="av-frame" class="av-frame">
           <canvas id="av-canvas" width="96" height="96"></canvas>
         </div>
-        <button id="btn-av-next" class="av-arrow" aria-label="Next">&#8594;</button>
+        <button id="btn-av-next" class="av-arrow" aria-label="Next">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
       </div>
       <div id="av-dots" class="av-dots"></div>
     </div>
@@ -246,8 +249,7 @@
       </div>
 
       <!-- Toolbar -->
-      <div id="toolbar" class="toolbar-dark glass">
-        <!-- Drawing Tools -->
+      <div id="toolbar" class="toolbar-glass">
         <button class="tool-btn active" id="tool-pencil" data-tool="pencil" title="Pencil">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
         </button>
@@ -257,14 +259,40 @@
         <button class="tool-btn" id="tool-circle" data-tool="circle" title="Circle">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>
         </button>
-        <button class="tool-btn" id="tool-fill" data-tool="fill" title="Fill">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 11l-8-8-8.5 8.5a5.5 5.5 0 0 0 7.78 7.78L19 11z"/><path d="M20 23a3 3 0 0 0 0-6h-1l-3-3"/></svg>
-        </button>
         <button class="tool-btn" id="tool-eraser" data-tool="eraser" title="Eraser">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 20H7L3 16l10-10 7 7-3.5 3.5"/><path d="M6.5 17.5l4-4"/></svg>
         </button>
 
         <div class="tool-divider"></div>
+
+        <button class="tool-btn color-btn" id="btn-color-popup" title="Colors">
+          <div id="color-indicator" class="color-indicator-ring" style="background:#000"></div>
+        </button>
+
+        <button class="tool-btn" id="btn-size-popup" title="Brush Size">
+          <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/></svg>
+        </button>
+
+        <div class="tool-divider"></div>
+
+        <button class="tool-btn" id="tool-undo" title="Undo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+        </button>
+        <button class="tool-btn danger" id="tool-clear" title="Clear Canvas">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        </button>
+
+        <div id="popup-color" class="tool-popup glass-strong hidden">
+          <div id="color-palette" class="color-palette"></div>
+          <input id="color-picker" type="color" class="native-picker" value="#000000">
+        </div>
+
+        <div id="popup-size" class="tool-popup glass-strong hidden">
+          <label class="size-label-txt">Size: <strong id="size-val-txt">3px</strong></label>
+          <input id="size-slider" class="size-slider" type="range" min="1" max="40" value="3">
+          <div class="size-preview-wrap"><div id="size-preview" class="size-preview"></div></div>
+        </div>
+      </div>
 
         <!-- Color -->
         <button class="tool-btn color-btn" id="btn-color-popup" title="Colors">
