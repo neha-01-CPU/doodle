@@ -1,6 +1,6 @@
 /* ================================================================
    PICAZO — script.js  v3.0
-   Full Feature: Timer, Mute, Chat, Canvas, Avatars, Popups, etc.
+   Full Feature: Timer, Bots, Chat, Canvas, Avatars, Popups
 ================================================================ */
 'use strict';
 
@@ -95,32 +95,27 @@ function drawAvatar(canvas, def, size = 96) {
 
   const cx = W / 2, headR = W * 0.22, headY = H * 0.4;
 
-  // Body / shirt
   c.fillStyle = def.accent;
   c.beginPath();
   c.ellipse(cx, H * 0.88, W * 0.28, H * 0.22, 0, 0, Math.PI * 2);
   c.fill();
 
-  // Neck
   c.fillStyle = def.skin;
   c.fillRect(cx - W * 0.065, headY + headR * 0.8, W * 0.13, H * 0.1);
 
   drawHairBack(c, def.style, def.hCol, cx, headY, headR, W, H);
 
-  // Head
   c.fillStyle = def.skin;
   c.beginPath();
   c.ellipse(cx, headY, headR, headR * 1.1, 0, 0, Math.PI * 2);
   c.fill();
 
-  // Ears
   c.fillStyle = def.skin;
   c.beginPath(); c.ellipse(cx - headR*0.92, headY+headR*0.05, headR*0.2, headR*0.25, 0, 0, Math.PI*2); c.fill();
   c.beginPath(); c.ellipse(cx + headR*0.92, headY+headR*0.05, headR*0.2, headR*0.25, 0, 0, Math.PI*2); c.fill();
 
   drawHairFront(c, def.style, def.hCol, cx, headY, headR, W, H);
 
-  // Eyes
   const eyeY = headY - headR * 0.08, eyeOffX = headR * 0.42;
   [-1,1].forEach(side => {
     c.fillStyle = '#fff';
@@ -133,7 +128,6 @@ function drawAvatar(canvas, def, size = 96) {
     c.beginPath(); c.arc(cx+side*eyeOffX+2, eyeY-2, headR*0.04, 0, Math.PI*2); c.fill();
   });
 
-  // Eyebrows
   c.strokeStyle = def.hCol; c.lineWidth = headR*0.09; c.lineCap = 'round';
   [-1,1].forEach(side => {
     c.beginPath();
@@ -142,7 +136,6 @@ function drawAvatar(canvas, def, size = 96) {
     c.stroke();
   });
 
-  // Nose
   c.strokeStyle = shadeColor(def.skin, -20); c.lineWidth = headR*0.07;
   c.beginPath();
   c.moveTo(cx-headR*0.08, headY+headR*0.12);
@@ -150,7 +143,6 @@ function drawAvatar(canvas, def, size = 96) {
   c.lineTo(cx+headR*0.08, headY+headR*0.12);
   c.stroke();
 
-  // Mouth
   const isFemale = def.style.startsWith('f-');
   c.strokeStyle = isFemale ? '#d07070' : '#a06060';
   c.lineWidth = headR*0.09;
@@ -158,7 +150,6 @@ function drawAvatar(canvas, def, size = 96) {
   c.arc(cx, headY+headR*0.5, headR*0.22, 0.15, Math.PI-0.15);
   c.stroke();
 
-  // Blush
   if (isFemale) {
     [-1,1].forEach(side => {
       const g = c.createRadialGradient(cx+side*eyeOffX*1.1, headY+headR*0.35, 0, cx+side*eyeOffX*1.1, headY+headR*0.35, headR*0.28);
@@ -169,7 +160,6 @@ function drawAvatar(canvas, def, size = 96) {
     });
   }
 
-  // Beard
   if (def.style === 'm-beard') {
     c.fillStyle = def.hCol + 'cc';
     c.beginPath(); c.ellipse(cx, headY+headR*0.65, headR*0.4, headR*0.28, 0, 0, Math.PI); c.fill();
@@ -177,7 +167,6 @@ function drawAvatar(canvas, def, size = 96) {
     c.beginPath(); c.arc(cx+headR*0.28, headY+headR*0.52, headR*0.18, 0, Math.PI*2); c.fill();
   }
 
-  // Glasses
   if (def.style === 'm-spec' || def.style === 'f-spec') {
     c.strokeStyle = '#445'; c.lineWidth = headR*0.1; c.fillStyle = 'rgba(180,220,255,0.25)';
     const gox = eyeOffX*0.95, gr = headR*0.22, gy = eyeY+1;
@@ -241,7 +230,7 @@ let S = {
   playerName: '',
   totalRounds: 3,
   drawTime: 90,
-  botCount: 12,
+  botCount: 8,
   hintsCount: 2,
   customWords: [],
 
@@ -263,8 +252,6 @@ let S = {
   color: '#000000',
   brushSize: 3,
   strokes: [],
-  shapeStart: null,
-  snapBeforeShape: null,
   isDrawer: false,
 
   isMuted: false,
@@ -287,6 +274,9 @@ const avCanvas     = $('av-canvas');
 const avFrame      = $('av-frame');
 const avDots       = $('av-dots');
 const inpName      = $('inp-name');
+const selRounds    = $('sel-rounds');
+const selTime      = $('sel-time');
+const selBots      = $('sel-bots');
 const btnPlay      = $('btn-play');
 const btnPrivate   = $('btn-private');
 
@@ -356,11 +346,6 @@ function setAvatar(i) {
 
 btnAvPrev.addEventListener('click', () => setAvatar(S.avatarIdx - 1));
 btnAvNext.addEventListener('click', () => setAvatar(S.avatarIdx + 1));
-window.addEventListener('keydown', e => {
-  if (!screenLobby.classList.contains('active')) return;
-  if (e.key === 'ArrowLeft') setAvatar(S.avatarIdx - 1);
-  if (e.key === 'ArrowRight') setAvatar(S.avatarIdx + 1);
-});
 
 buildAvDots();
 setAvatar(0);
@@ -368,6 +353,9 @@ setAvatar(0);
 /* ════════════════════════════════════════════
    LOBBY — SETTINGS & PLAY
 ════════════════════════════════════════════ */
+if (selRounds) selRounds.addEventListener('change', e => { S.totalRounds = +e.target.value; });
+if (selTime) selTime.addEventListener('change',   e => { S.drawTime    = +e.target.value; });
+if (selBots) selBots.addEventListener('change',   e => { S.botCount    = +e.target.value; });
 
 btnPlay.addEventListener('click', () => {
   const name = inpName.value.trim();
@@ -377,78 +365,15 @@ btnPlay.addEventListener('click', () => {
     inpName.focus();
     return;
   }
-
+  
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
+  
   S.playerName  = name;
-  S.totalRounds = 3;  
-  S.drawTime    = 90; 
-  S.botCount    = 12; 
+  S.totalRounds = selRounds ? +selRounds.value : 3;
+  S.drawTime    = selTime ? +selTime.value : 90;
+  S.botCount    = selBots ? +selBots.value : 8;
   S.hintsCount  = 2;
   transitionToGame();
-});
-inpName.addEventListener('keydown', e => { if (e.key === 'Enter') btnPlay.click(); });
-
-/* ════════════════════════════════════════════
-   PRIVATE ROOM MODAL
-════════════════════════════════════════════ */
-const modalPrivate     = $('modal-private');
-const btnStartPrivate  = $('btn-start-private');
-const btnCancelPrivate = $('btn-cancel-private');
-const privInviteBox    = $('priv-invite-box');
-const privLinkTxt      = $('priv-link-txt');
-const btnCopyPriv      = $('btn-copy-priv');
-
-btnPrivate.addEventListener('click', () => {
-  modalPrivate.classList.remove('hidden');
-});
-btnCancelPrivate.addEventListener('click', () => {
-  modalPrivate.classList.add('hidden');
-  privInviteBox.classList.add('hidden');
-});
-modalPrivate.addEventListener('click', e => {
-  if (e.target === modalPrivate) {
-    modalPrivate.classList.add('hidden');
-    privInviteBox.classList.add('hidden');
-  }
-});
-
-btnStartPrivate.addEventListener('click', () => {
-  const name = inpName.value.trim() || 'Host';
-  S.playerName  = name;
-  S.totalRounds = +$('priv-rounds').value;
-  S.drawTime    = +$('priv-time').value;
-  S.botCount    = +$('priv-players').value;
-  S.hintsCount  = +$('priv-hints').value;
-
-  const rawWords = $('priv-words').value.trim();
-  if (rawWords) {
-    S.customWords = rawWords.split(',').map(w => w.trim()).filter(w => w.length > 0);
-  } else {
-    S.customWords = [];
-  }
-
-  const roomCode = Math.random().toString(36).substr(2, 6).toUpperCase();
-  const link = `https://picazo.game/r/${roomCode}`;
-  privLinkTxt.textContent = link;
-  privInviteBox.classList.remove('hidden');
-});
-
-btnCopyPriv.addEventListener('click', () => {
-  navigator.clipboard.writeText(privLinkTxt.textContent).catch(() => {});
-  btnCopyPriv.textContent = '✓ Copied!';
-  setTimeout(() => {
-    btnCopyPriv.textContent = 'Copy';
-    modalPrivate.classList.add('hidden');
-    privInviteBox.classList.add('hidden');
-    transitionToGame();
-  }, 1200);
-});
-
-btnCopyLink.addEventListener('click', () => {
-  navigator.clipboard.writeText(window.location.href).catch(() => {});
-  btnCopyLink.textContent = '✓ Copied';
-  setTimeout(() => { btnCopyLink.textContent = 'Copy'; }, 2000);
 });
 
 /* ════════════════════════════════════════════
@@ -508,7 +433,6 @@ function initGame() {
   setupChat();
   setupMuteBtn();
   setupContextMenu();
-  setupVoteBanner();
   initCanvas();
 
   overlayWaiting.classList.add('hidden');
@@ -549,10 +473,6 @@ function buildPlayers() {
     });
   }
   S.drawerIdx = 0;
-
-  S.players.slice(1, 4).forEach((p, i) => {
-    setTimeout(() => showEventPopup('👤', `${p.name} joined the lobby!`), 400 + i * 500);
-  });
 }
 
 function buildLeaderboard() {
@@ -600,13 +520,6 @@ function updateRoundBadge() {
 /* ════════════════════════════════════════════
    WORD SELECTION & ROUND LOGIC
 ════════════════════════════════════════════ */
-function getWordBank() {
-  if (S.customWords.length >= 3) {
-    return S.customWords.map(w => ({ w, e: '✏️' }));
-  }
-  return WORD_BANK;
-}
-
 function startWordSelection() {
   S.players.forEach(p => { p.guessed = false; });
   S.guessedIds.clear();
@@ -614,8 +527,7 @@ function startWordSelection() {
   buildLeaderboard();
 
   overlayWordSelect.classList.remove('hidden');
-  const bank = getWordBank();
-  const choices = shuffled(bank).slice(0, 3);
+  const choices = shuffled(WORD_BANK).slice(0, 3);
   wsCards.innerHTML = '';
   choices.forEach(w => {
     const card = document.createElement('div');
@@ -689,22 +601,18 @@ function renderWordBlanks() {
     grp.insertAdjacentHTML('beforeend', `<div class="wb-line" style="width:${lineW}px"></div>`);
     wordDisplay.appendChild(grp);
   }
-  wordMeta.textContent = S.isDrawer
-    ? `You are drawing — ${word.length} letters`
-    : `${word.length} letters`;
+  wordMeta.textContent = S.isDrawer ? `You are drawing — ${word.length} letters` : `${word.length} letters`;
 }
 
 function revealHintLetter() {
   if (S.hintsFired >= S.hintsCount) return;
-  const unrevealed = S.currentWord.split('').map((_,i) => i)
-    .filter(i => !S.revealedIdx.includes(i) && S.currentWord[i] !== ' ');
+  const unrevealed = S.currentWord.split('').map((_,i) => i).filter(i => !S.revealedIdx.includes(i) && S.currentWord[i] !== ' ');
   if (unrevealed.length <= 1) return;
   const idx = unrevealed[Math.floor(Math.random() * unrevealed.length)];
   S.revealedIdx.push(idx);
   S.hintsFired++;
   renderWordBlanks();
-  showToast('💡 A hint letter was revealed!', 't-info');
-  showEventPopup('💡', 'Hint letter revealed!');
+  showToast('💡 Hint letter revealed!', 't-info');
 }
 
 function startRoundTimer() {
@@ -715,15 +623,8 @@ function startRoundTimer() {
   S.timerInterval = setInterval(() => {
     S.timeLeft--;
     
-    // Slow hint reveal underneath 30s
-    if (S.timeLeft <= 30 && S.timeLeft > 0 && S.timeLeft % 10 === 0) {
-      revealHintLetter();
-    }
-    
-    // Play ticking sound under 15s
-    if (S.timeLeft <= 15 && S.timeLeft > 0) {
-      playTickSound();
-    }
+    if (S.timeLeft <= 30 && S.timeLeft > 0 && S.timeLeft % 10 === 0) revealHintLetter();
+    if (S.timeLeft <= 15 && S.timeLeft > 0) playTickSound();
 
     updateTimerUI();
     if (S.timeLeft <= 0) {
@@ -747,7 +648,6 @@ function endRound(allGuessed = false) {
   clearInterval(S.timerInterval);
   clearInterval(S.wsTimerInterval);
   addChat('system', '', `⏰ Round over! The word was: "${S.currentWord}"`);
-  showEventPopup('⏰', `Word was: ${S.currentWord}`);
 
   if (S.guessedIds.size > 0) {
     const bonus = Math.min(S.guessedIds.size * 30, 150);
@@ -794,7 +694,6 @@ function nextRound() {
   renderWordBlanks();
   buildLeaderboard();
   addChat('system', '', `🔄 Round ${S.round} — ${S.players[S.drawerIdx].name} draws!`);
-  showEventPopup('🎨', `${S.players[S.drawerIdx].name} is drawing now!`);
   startWordSelection();
 }
 
@@ -803,7 +702,6 @@ function endGame() {
   const winner = [...S.players].sort((a, b) => b.score - a.score)[0];
   addChat('system', '', `🏆 Game Over! Winner: ${winner.name} (${winner.score} pts)!`);
   showToast(`🏆 ${winner.name} wins! GG!`, 't-gold');
-  showEventPopup('🏆', `${winner.name} wins the game!`);
 
   overlayRoundEnd.classList.remove('hidden');
   reEmoji.textContent = '🏆';
@@ -817,14 +715,13 @@ function endGame() {
 }
 
 /* ════════════════════════════════════════════
-   BOT GUESSING
+   BOT GUESSING (Fast for testing)
 ════════════════════════════════════════════ */
-
 function scheduleBotGuesses() {
   const bots = S.players.filter(p => !p.isSelf && p.id !== S.players[S.drawerIdx]?.id);
   bots.forEach((bot, idx) => {
-    // Super fast 100% correct guessing for testing
-    const correctDelay = 1000 + (idx * 500) + Math.random() * 1000;
+    // Fast correct guess for rapid testing
+    const correctDelay = 2000 + idx * 1000 + Math.random() * 2000;
     setTimeout(() => {
       if (!S.currentWord || bot.guessed) return;
       botGuessCorrect(bot);
@@ -838,10 +735,7 @@ function botGuessCorrect(bot) {
   bot.guessed = true;
   S.guessedIds.add(bot.id);
   addChat('correct', bot.name, `🎉 Guessed the word! (+${pts} pts)`);
-  showToast(`✅ ${bot.name} guessed it!`, 't-correct');
-  showEventPopup('✅', `${bot.name} guessed correctly!`);
   buildLeaderboard();
-
   floatPoints(`+${pts}`, window.innerWidth * 0.5, window.innerHeight * 0.5);
 
   const nonDrawers = S.players.filter(p => p.id !== S.players[S.drawerIdx]?.id);
@@ -852,7 +746,7 @@ function botGuessCorrect(bot) {
 }
 
 /* ════════════════════════════════════════════
-   CANVAS DRAWING
+   CANVAS DRAWING & TOOLS
 ════════════════════════════════════════════ */
 function initCanvas() {
   resizeCanvas();
@@ -898,6 +792,55 @@ function getPointerXY(e) {
   return { x: e.clientX - r.left, y: e.clientY - r.top };
 }
 
+function onPointerDown(e) {
+  if (!S.isDrawer) return;
+  gameCanvas.setPointerCapture(e.pointerId);
+  S.isDrawing = true;
+  const pos = getPointerXY(e);
+
+  if (S.tool === 'fill') {
+    floodFill(pos.x, pos.y, S.color);
+    S.isDrawing = false;
+    return;
+  }
+  
+  ctx.beginPath();
+  ctx.moveTo(pos.x, pos.y);
+  applyBrushStyle();
+}
+
+function onPointerMove(e) {
+  if (!S.isDrawer || !S.isDrawing) return;
+  const pos = getPointerXY(e);
+  ctx.lineTo(pos.x, pos.y);
+  ctx.stroke();
+}
+
+function onPointerUp(e) {
+  if (!S.isDrawer) return;
+  gameCanvas.releasePointerCapture(e.pointerId);
+  if (!S.isDrawing) return;
+  S.isDrawing = false;
+  ctx.closePath();
+  saveStroke();
+}
+
+function applyBrushStyle() {
+  const isEraser = S.tool === 'eraser';
+  ctx.strokeStyle = isEraser ? '#ffffff' : S.color;
+  ctx.fillStyle   = S.color + '18';
+  ctx.lineWidth   = isEraser ? S.brushSize * 3 : S.brushSize;
+  ctx.globalCompositeOperation = isEraser ? 'destination-out' : 'source-over';
+}
+
+function saveStroke() {
+  try {
+    S.strokes.push(ctx.getImageData(0, 0, gameCanvas.width, gameCanvas.height));
+    if (S.strokes.length > 30) S.strokes.shift();
+  } catch(e) {}
+  ctx.globalCompositeOperation = 'source-over';
+}
+
 function floodFill(startX, startY, fillHex) {
   const w = gameCanvas.width, h = gameCanvas.height;
   const id = ctx.getImageData(0, 0, w, h);
@@ -936,110 +879,11 @@ function floodFill(startX, startY, fillHex) {
   saveStroke();
 }
 
-function onPointerDown(e) {
-  if (!S.isDrawer) return;
-  gameCanvas.setPointerCapture(e.pointerId);
-  S.isDrawing = true;
-  const pos = getPointerXY(e);
-
-  if (S.tool === 'fill') {
-    floodFill(pos.x, pos.y, S.color);
-    S.isDrawing = false;
-    return;
-  }
-
-  if (S.tool === 'rect' || S.tool === 'circle') {
-    S.shapeStart = pos;
-    S.snapBeforeShape = ctx.getImageData(0, 0, gameCanvas.width, gameCanvas.height);
-    return;
-  }
-  ctx.beginPath();
-  ctx.moveTo(pos.x, pos.y);
-  applyBrushStyle();
-}
-
-function onPointerMove(e) {
-  if (!S.isDrawer || !S.isDrawing) return;
-  const pos = getPointerXY(e);
-
-  if ((S.tool === 'rect' || S.tool === 'circle') && S.snapBeforeShape) {
-    ctx.putImageData(S.snapBeforeShape, 0, 0);
-    applyBrushStyle();
-    const w = pos.x - S.shapeStart.x, h = pos.y - S.shapeStart.y;
-    if (S.tool === 'rect') {
-      ctx.beginPath();
-      ctx.strokeRect(S.shapeStart.x, S.shapeStart.y, w, h);
-      ctx.fillStyle = S.color + '22';
-      ctx.fillRect(S.shapeStart.x, S.shapeStart.y, w, h);
-    } else {
-      const rx = Math.abs(w) / 2, ry = Math.abs(h) / 2;
-      const cxE = S.shapeStart.x + w / 2, cyE = S.shapeStart.y + h / 2;
-      ctx.beginPath();
-      ctx.ellipse(cxE, cyE, rx, ry, 0, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.fillStyle = S.color + '22';
-      ctx.fill();
-    }
-    return;
-  }
-
-  ctx.lineTo(pos.x, pos.y);
-  ctx.stroke();
-}
-
-function onPointerUp(e) {
-  if (!S.isDrawer) return;
-  gameCanvas.releasePointerCapture(e.pointerId);
-  if (!S.isDrawing) return;
-  S.isDrawing = false;
-
-  if ((S.tool === 'rect' || S.tool === 'circle') && S.shapeStart) {
-    const pos = getPointerXY(e);
-    ctx.putImageData(S.snapBeforeShape, 0, 0);
-    applyBrushStyle();
-    const w = pos.x - S.shapeStart.x, h = pos.y - S.shapeStart.y;
-    if (S.tool === 'rect') {
-      ctx.beginPath();
-      ctx.strokeRect(S.shapeStart.x, S.shapeStart.y, w, h);
-      ctx.fillStyle = S.color + '22';
-      ctx.fillRect(S.shapeStart.x, S.shapeStart.y, w, h);
-    } else {
-      const rx = Math.abs(w) / 2, ry = Math.abs(h) / 2;
-      const cxE = S.shapeStart.x + w / 2, cyE = S.shapeStart.y + h / 2;
-      ctx.beginPath();
-      ctx.ellipse(cxE, cyE, rx, ry, 0, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.fillStyle = S.color + '22';
-      ctx.fill();
-    }
-    S.shapeStart = null;
-  } else {
-    ctx.closePath();
-  }
-  saveStroke();
-}
-
-function applyBrushStyle() {
-  const isEraser = S.tool === 'eraser';
-  ctx.strokeStyle = isEraser ? '#ffffff' : S.color;
-  ctx.fillStyle   = S.color + '18';
-  ctx.lineWidth   = isEraser ? S.brushSize * 3 : S.brushSize;
-  ctx.globalCompositeOperation = isEraser ? 'destination-out' : 'source-over';
-}
-
-function saveStroke() {
-  try {
-    S.strokes.push(ctx.getImageData(0, 0, gameCanvas.width, gameCanvas.height));
-    if (S.strokes.length > 30) S.strokes.shift();
-  } catch(e) {}
-  ctx.globalCompositeOperation = 'source-over';
-}
-
 /* ════════════════════════════════════════════
    TOOLBAR SETUP
 ════════════════════════════════════════════ */
 function setupToolbar() {
-  ['pencil','rect','circle','fill','eraser'].forEach(t => {
+  ['pencil','fill','eraser'].forEach(t => {
     const btn = $('tool-' + t);
     if (btn) btn.addEventListener('click', () => selectTool(t));
   });
@@ -1147,7 +991,6 @@ function sendGuess() {
     S.guessedIds.add(S.myId);
     addChat('correct', S.playerName, `🎉 Guessed the word! (+${pts} pts)`);
     showToast(`✅ You guessed it! +${pts} pts`, 't-correct');
-    showEventPopup('🎉', `${S.playerName} guessed it! +${pts} pts`);
     buildLeaderboard();
     floatPoints(`+${pts}`, window.innerWidth * 0.5, window.innerHeight * 0.4);
 
@@ -1198,7 +1041,7 @@ function setupContextMenu() {
     if (!contextMenu.contains(e.target)) contextMenu.classList.add('hidden');
   });
   $('ctx-kick').addEventListener('click',   () => { contextMenu.classList.add('hidden'); if (S.ctxTarget) initiateVoteKick(S.ctxTarget); });
-  $('ctx-report').addEventListener('click', () => { contextMenu.classList.add('hidden'); if (S.ctxTarget) { showToast(`🚩 ${S.ctxTarget.name} reported`, 't-warn'); showEventPopup('🚩', `${S.ctxTarget.name} was reported!`); } });
+  $('ctx-report').addEventListener('click', () => { contextMenu.classList.add('hidden'); if (S.ctxTarget) { showToast(`🚩 ${S.ctxTarget.name} reported`, 't-warn'); } });
   $('ctx-mute').addEventListener('click',   () => { if (S.ctxTarget) showToast(`🔇 ${S.ctxTarget.name} muted locally`, 't-info'); contextMenu.classList.add('hidden'); });
   $('ctx-close').addEventListener('click',  () => contextMenu.classList.add('hidden'));
 }
@@ -1220,9 +1063,13 @@ function openContextMenu(e, player) {
   contextMenu.style.top  = y + 'px';
 }
 
-/* ════════════════════════════════════════════
-   VOTE KICK
-════════════════════════════════════════════ */
+function initiateVoteKick(player) {
+  $('vote-title').textContent = `Vote to kick ${player.name}?`;
+  $('vote-sub').textContent   = `${Math.ceil(S.players.length * 0.7)} of ${S.players.length} votes needed (70%)`;
+  voteBanner.classList.remove('hidden');
+  setTimeout(() => voteBanner.classList.add('hidden'), 12000);
+}
+
 function setupVoteBanner() {
   $('btn-vote-yes').addEventListener('click', () => {
     voteBanner.classList.add('hidden');
@@ -1232,7 +1079,6 @@ function setupVoteBanner() {
       buildLeaderboard();
       addChat('system', '', `🚪 ${name} was kicked by vote.`);
       showToast(`🚪 ${name} was kicked`, 't-warn');
-      showEventPopup('🚪', `${name} was kicked by vote!`);
     }
   });
   $('btn-vote-no').addEventListener('click', () => {
@@ -1241,16 +1087,8 @@ function setupVoteBanner() {
   });
 }
 
-function initiateVoteKick(player) {
-  $('vote-title').textContent = `Vote to kick ${player.name}?`;
-  $('vote-sub').textContent   = `${Math.ceil(S.players.length * 0.7)} of ${S.players.length} votes needed (70%)`;
-  voteBanner.classList.remove('hidden');
-  showEventPopup('🗳️', `Vote to kick ${player.name} started!`);
-  setTimeout(() => voteBanner.classList.add('hidden'), 12000);
-}
-
 /* ════════════════════════════════════════════
-   EVENT POPUP (glassmorphism overlay)
+   EVENT POPUP
 ════════════════════════════════════════════ */
 let _epTimer = null;
 function showEventPopup(icon, msg) {
