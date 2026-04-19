@@ -28,9 +28,6 @@ function playTickSound() {
 
 const COLORS = [
   '#000000','#ffffff','#c0c0c0','#808080',
-// ... the rest of your colors continue here ...
-const COLORS = [
-  '#000000','#ffffff','#c0c0c0','#808080',
   '#ff0000','#ff6600','#ffcc00','#ffff00',
   '#00cc00','#00ffcc','#0088ff','#0000ff',
   '#8800ff','#ff00ff','#ff6699','#cc3333',
@@ -1026,30 +1023,6 @@ function saveStroke() {
     if (S.strokes.length > 30) S.strokes.shift();
   } catch(e) {}
   ctx.globalCompositeOperation = 'source-over';
-}
-
-  function match(i) {
-    return Math.abs(d[i]-tr)<30 && Math.abs(d[i+1]-tg)<30 &&
-           Math.abs(d[i+2]-tb)<30 && Math.abs(d[i+3]-ta)<30;
-  }
-
-  const stack = [xi + yi * w], seen = new Uint8Array(w * h);
-  while (stack.length) {
-    const p = stack.pop();
-    if (seen[p]) continue;
-    const x = p % w, y = Math.floor(p / w);
-    if (x < 0 || x >= w || y < 0 || y >= h) continue;
-    const i = p * 4;
-    if (!match(i)) continue;
-    seen[p] = 1;
-    d[i] = fc.r; d[i+1] = fc.g; d[i+2] = fc.b; d[i+3] = 255;
-    if (x+1 < w)  stack.push(p+1);
-    if (x-1 >= 0) stack.push(p-1);
-    if (y+1 < h)  stack.push(p+w);
-    if (y-1 >= 0) stack.push(p-w);
-  }
-  ctx.putImageData(id, 0, 0);
-  saveStroke();
 }
 
 /* ════════════════════════════════════════════
