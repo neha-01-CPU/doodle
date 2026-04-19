@@ -55,7 +55,7 @@ const WORD_BANK = [
 ];
 
 /* ════════════════════════════════════════════
-   AVATAR DEFINITIONS — 16 unique characters
+   AVATAR DEFINITIONS
 ════════════════════════════════════════════ */
 const AVATAR_DEFS = [
   {name:'Alex',    skin:'#fdd09a',hair:'#3a2010',hCol:'#222',   style:'m-short', accent:'#4a8fe8'},
@@ -240,8 +240,8 @@ let S = {
   avatarIdx: 0,
   playerName: '',
   totalRounds: 3,
-  drawTime: 100,
-  botCount: 8,
+  drawTime: 90,
+  botCount: 12,
   hintsCount: 2,
   customWords: [],
 
@@ -254,7 +254,7 @@ let S = {
   guessedIds: new Set(),
   hintsFired: 0,
 
-  timeLeft: 100,
+  timeLeft: 90,
   timerInterval: null,
   wsTimerInterval: null,
 
@@ -272,7 +272,7 @@ let S = {
   dpr: window.devicePixelRatio || 1
 };
 
-const CIRC = 2 * Math.PI * 25; // circumference for r=25 SVG circle
+const CIRC = 2 * Math.PI * 25; 
 
 /* ════════════════════════════════════════════
    DOM REFS
@@ -287,9 +287,6 @@ const avCanvas     = $('av-canvas');
 const avFrame      = $('av-frame');
 const avDots       = $('av-dots');
 const inpName      = $('inp-name');
-const selRounds    = $('sel-rounds');
-const selTime      = $('sel-time');
-const selBots      = $('sel-bots');
 const btnPlay      = $('btn-play');
 const btnPrivate   = $('btn-private');
 
@@ -371,9 +368,6 @@ setAvatar(0);
 /* ════════════════════════════════════════════
    LOBBY — SETTINGS & PLAY
 ════════════════════════════════════════════ */
-selRounds.addEventListener('change', e => { S.totalRounds = +e.target.value; });
-selTime.addEventListener('change',   e => { S.drawTime    = +e.target.value; });
-selBots.addEventListener('change',   e => { S.botCount    = +e.target.value; });
 
 btnPlay.addEventListener('click', () => {
   const name = inpName.value.trim();
@@ -383,14 +377,14 @@ btnPlay.addEventListener('click', () => {
     inpName.focus();
     return;
   }
-  
-  // Initialize audio context on first user interaction
+
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  
+
   S.playerName  = name;
-  S.totalRounds = 3;  // Hardcoded for public game
-  S.drawTime    = 90; // Fixed 90 seconds
-  S.botCount    = 12; // Maximum 12 players
+  // Public defaults as requested
+  S.totalRounds = 3;  
+  S.drawTime    = 90; 
+  S.botCount    = 12; 
   S.hintsCount  = 2;
   transitionToGame();
 });
@@ -435,7 +429,6 @@ btnStartPrivate.addEventListener('click', () => {
     S.customWords = [];
   }
 
-  // Generate fake invite link
   const roomCode = Math.random().toString(36).substr(2, 6).toUpperCase();
   const link = `https://picazo.game/r/${roomCode}`;
   privLinkTxt.textContent = link;
@@ -484,7 +477,6 @@ function setupMobileLayout() {
   const lb    = $('leaderboard-panel');
   const chat  = $('chat-panel');
 
-  // On mobile we need LB + Chat side-by-side below canvas
   let bottomRow = document.querySelector('.bottom-mobile-row');
 
   if (isMobile) {
@@ -559,7 +551,6 @@ function buildPlayers() {
   }
   S.drawerIdx = 0;
 
-  // Show join popups with delay
   S.players.slice(1, 4).forEach((p, i) => {
     setTimeout(() => showEventPopup('👤', `${p.name} joined the lobby!`), 400 + i * 500);
   });
@@ -653,7 +644,6 @@ function startWordSelection() {
     if (t <= 0) { clearInterval(S.wsTimerInterval); chooseWord(choices[0].w); }
   }, 1000);
 
-  // Bots auto-choose after short delay
   if (!S.isDrawer) {
     setTimeout(() => {
       if (!overlayWordSelect.classList.contains('hidden')) {
@@ -673,7 +663,6 @@ function chooseWord(word) {
   addChat('system', '', `${S.players[S.drawerIdx].name} is now drawing! 🖊️`);
   scheduleBotGuesses();
 
-  // Clear canvas for new round
   ctx.fillStyle = 'white';
   ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
   S.strokes = [];
@@ -727,12 +716,12 @@ function startRoundTimer() {
   S.timerInterval = setInterval(() => {
     S.timeLeft--;
     
-    // Slow hint reveal underneath 30s
+    // Hint reveal underneath 30s
     if (S.timeLeft <= 30 && S.timeLeft > 0 && S.timeLeft % 10 === 0) {
       revealHintLetter();
     }
     
-    // Play ticking sound under 15s
+    // Ticking sound under 15s
     if (S.timeLeft <= 15 && S.timeLeft > 0) {
       playTickSound();
     }
@@ -761,7 +750,6 @@ function endRound(allGuessed = false) {
   addChat('system', '', `⏰ Round over! The word was: "${S.currentWord}"`);
   showEventPopup('⏰', `Word was: ${S.currentWord}`);
 
-  // Drawer bonus
   if (S.guessedIds.size > 0) {
     const bonus = Math.min(S.guessedIds.size * 30, 150);
     const drawer = S.players[S.drawerIdx];
@@ -842,17 +830,17 @@ function scheduleBotGuesses() {
   const bots = S.players.filter(p => !p.isSelf && p.id !== S.players[S.drawerIdx]?.id);
   bots.forEach((bot, idx) => {
     // Fake guess
-    const fakeDelay = 5000 + idx * 2500 + Math.random() * 4000;
+    const fakeDelay = 2000 + Math.random() * 3000;
     setTimeout(() => {
       if (!S.currentWord || bot.guessed) return;
       addChat('normal', bot.name, FAKE_GUESSES[Math.floor(Math.random() * FAKE_GUESSES.length)]);
     }, fakeDelay);
 
-   // Fast correct guess for testing
-    const correctDelay = 1500 + Math.random() * 2000;
+    // Fast correct guess for testing
+    const correctDelay = 1500 + Math.random() * 2500;
     setTimeout(() => {
       if (!S.currentWord || bot.guessed) return;
-      if (S.timeLeft / S.drawTime < 0.65 && Math.random() < 0.45) {
+      if (Math.random() < 0.6) {
         botGuessCorrect(bot);
       }
     }, correctDelay);
@@ -869,7 +857,6 @@ function botGuessCorrect(bot) {
   showEventPopup('✅', `${bot.name} guessed correctly!`);
   buildLeaderboard();
 
-  // Floating pts
   floatPoints(`+${pts}`, window.innerWidth * 0.5, window.innerHeight * 0.5);
 
   const nonDrawers = S.players.filter(p => p.id !== S.players[S.drawerIdx]?.id);
@@ -910,7 +897,6 @@ function resizeCanvas() {
   ctx.lineCap  = 'round';
   ctx.lineJoin = 'round';
 
-  // White background
   ctx.fillStyle = 'white';
   ctx.fillRect(0, 0, W, H);
 
@@ -933,11 +919,6 @@ function onPointerDown(e) {
   S.isDrawing = true;
   const pos = getPointerXY(e);
 
-  if (S.tool === 'fill') {
-    floodFill(pos.x, pos.y, S.color);
-    S.isDrawing = false;
-    return;
-  }
   if (S.tool === 'rect' || S.tool === 'circle') {
     S.shapeStart = pos;
     S.snapBeforeShape = ctx.getImageData(0, 0, gameCanvas.width, gameCanvas.height);
@@ -1110,7 +1091,6 @@ function setupChat() {
   btnChatSend.addEventListener('click', sendGuess);
   chatInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); sendGuess(); } });
 
-  // Fix: prevent page scroll when input is focused on mobile
   chatInput.addEventListener('focus', () => {
     setTimeout(() => {
       chatInput.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -1132,7 +1112,6 @@ function sendGuess() {
   const word  = (S.currentWord || '').toLowerCase().trim();
 
   if (word && guess === word) {
-    // Correct guess!
     const pts = Math.max(10, Math.round(S.timeLeft / S.drawTime * 100));
     const me  = S.players.find(p => p.isSelf);
     if (me) { me.score += pts; me.guessed = true; }
@@ -1149,7 +1128,6 @@ function sendGuess() {
       setTimeout(() => endRound(true), 800);
     }
   } else if (word && levenshtein(guess, word) <= 1) {
-    // Close guess
     addChat('close', S.playerName, val + ' ← close!');
     showToast('🔥 So close!', 't-info');
   } else {
@@ -1297,4 +1275,4 @@ function levenshtein(a, b) {
     dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1] : 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
   }
   return dp[m][n];
-              }
+}
