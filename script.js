@@ -7,6 +7,28 @@
 /* ════════════════════════════════════════════
    CONSTANTS & DATA
 ════════════════════════════════════════════ */
+
+let audioCtx = null;
+function playTickSound() {
+  if (S.isMuted) return;
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+  gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+  osc.start();
+  osc.stop(audioCtx.currentTime + 0.1);
+}
+
+const COLORS = [
+  '#000000','#ffffff','#c0c0c0','#808080',
+// ... the rest of your colors continue here ...
 const COLORS = [
   '#000000','#ffffff','#c0c0c0','#808080',
   '#ff0000','#ff6600','#ffcc00','#ffff00',
@@ -364,10 +386,14 @@ btnPlay.addEventListener('click', () => {
     inpName.focus();
     return;
   }
+  
+  // Initialize audio context on first user interaction
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  
   S.playerName  = name;
-  S.totalRounds = +selRounds.value;
-  S.drawTime    = +selTime.value;
-  S.botCount    = +selBots.value;
+  S.totalRounds = 3;  // Hardcoded for public game
+  S.drawTime    = 90; // Fixed 90 seconds
+  S.botCount    = 12; // Maximum 12 players
   S.hintsCount  = 2;
   transitionToGame();
 });
@@ -701,15 +727,19 @@ function startRoundTimer() {
   clearInterval(S.timerInterval);
   updateTimerUI();
 
-  // Hint schedule based on hintsCount
-  const hintTimes = [];
-  if (S.hintsCount >= 1) hintTimes.push(Math.floor(S.drawTime * 0.6));
-  if (S.hintsCount >= 2) hintTimes.push(Math.floor(S.drawTime * 0.3));
-  if (S.hintsCount >= 3) hintTimes.push(Math.floor(S.drawTime * 0.15));
-
   S.timerInterval = setInterval(() => {
     S.timeLeft--;
-    if (hintTimes.includes(S.timeLeft)) revealHintLetter();
+    
+    // Slow hint reveal underneath 30s
+    if (S.timeLeft <= 30 && S.timeLeft > 0 && S.timeLeft % 10 === 0) {
+      revealHintLetter();
+    }
+    
+    // Play ticking sound under 15s
+    if (S.timeLeft <= 15 && S.timeLeft > 0) {
+      playTickSound();
+    }
+
     updateTimerUI();
     if (S.timeLeft <= 0) {
       clearInterval(S.timerInterval);
@@ -821,8 +851,8 @@ function scheduleBotGuesses() {
       addChat('normal', bot.name, FAKE_GUESSES[Math.floor(Math.random() * FAKE_GUESSES.length)]);
     }, fakeDelay);
 
-    // Correct guess
-    const correctDelay = 12000 + idx * 4000 + Math.random() * 8000;
+   // Fast correct guess for testing
+    const correctDelay = 1500 + Math.random() * 2000;
     setTimeout(() => {
       if (!S.currentWord || bot.guessed) return;
       if (S.timeLeft / S.drawTime < 0.65 && Math.random() < 0.45) {
@@ -998,20 +1028,6 @@ function saveStroke() {
   ctx.globalCompositeOperation = 'source-over';
 }
 
-function floodFill(startX, startY, fillHex) {
-  const w = gameCanvas.width, h = gameCanvas.height;
-  const id = ctx.getImageData(0, 0, w, h);
-  const d  = id.data;
-  const xi = Math.round(startX * S.dpr), yi = Math.round(startY * S.dpr);
-  if (xi < 0 || xi >= w || yi < 0 || yi >= h) return;
-
-  const idx = (yi * w + xi) * 4;
-  const tr = d[idx], tg = d[idx+1], tb = d[idx+2], ta = d[idx+3];
-
-  const r = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(fillHex);
-  const fc = r ? { r: parseInt(r[1],16), g: parseInt(r[2],16), b: parseInt(r[3],16) } : null;
-  if (!fc || (tr===fc.r && tg===fc.g && tb===fc.b && ta===255)) return;
-
   function match(i) {
     return Math.abs(d[i]-tr)<30 && Math.abs(d[i+1]-tg)<30 &&
            Math.abs(d[i+2]-tb)<30 && Math.abs(d[i+3]-ta)<30;
@@ -1040,7 +1056,7 @@ function floodFill(startX, startY, fillHex) {
    TOOLBAR SETUP
 ════════════════════════════════════════════ */
 function setupToolbar() {
-  ['pencil','rect','circle','fill','eraser'].forEach(t => {
+  ['pencil','rect','circle','eraser'].forEach(t => {
     const btn = $('tool-' + t);
     if (btn) btn.addEventListener('click', () => selectTool(t));
   });
