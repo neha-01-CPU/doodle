@@ -146,23 +146,29 @@ html, body {
 /* PICAZO text — playful font, multi-color gradient */
 .logo-text {
   font-family: var(--f-display);
-  font-size: 3.4rem;
+  font-size: 3.8rem;
   letter-spacing: 3px;
-  background: linear-gradient(135deg, #f97316 0%, #ec4899 40%, #8b5cf6 70%, #3b82f6 100%);
+  background: linear-gradient(135deg, #FF6B6B 0%, #4ECDC4 40%, #45B7D1 70%, #9b59b6 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  filter: drop-shadow(0 3px 16px rgba(236,72,153,0.35));
+  filter: drop-shadow(0 3px 12px rgba(78, 205, 196, 0.4));
   line-height: 1;
 }
 
 .lobby-tagline {
-  font-size: 0.88rem;
-  font-weight: 700;
+  font-size: 0.95rem;
+  font-weight: 800;
   color: var(--txt-mid);
-  letter-spacing: 1.2px;
+  letter-spacing: 1.5px;
   margin-top: 6px;
   font-style: italic;
+  animation: sharpGlow 3s ease-in-out infinite;
+}
+
+@keyframes sharpGlow {
+  0%, 100% { text-shadow: 0 0 4px rgba(74,143,232,0.2); color: var(--txt-mid); }
+  50% { text-shadow: 0 0 15px rgba(92,110,248,0.9), 0 0 30px rgba(92,110,248,0.6); color: var(--indigo); }
 }
 
 .section-block {
@@ -574,7 +580,7 @@ html, body {
 .canvas-wrap.fill-mode #game-canvas { cursor: crosshair; }
 
 /* ── TOOLBAR ── */
-.toolbar-dark {
+.toolbar-glass {
   flex-shrink: 0;
   border-radius: var(--radius-md);
   padding: 8px 12px;
@@ -583,32 +589,34 @@ html, body {
   position: relative;
   overflow: visible;
   min-height: 52px;
-  background: rgba(20,30,60,0.75) !important;
-  border: 1.5px solid rgba(255,255,255,0.12) !important;
+  background: var(--glass-s);
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  border: 1.5px solid var(--border);
+  box-shadow: var(--shadow);
 }
-.tool-btn {
+.toolbar-glass .tool-btn {
   width: 38px; height: 38px; border-radius: 10px;
-  border: none;
-  background: rgba(255,255,255,0.06);
-  color: rgba(255,255,255,0.6);
+  border: 1px solid rgba(255,255,255,0.4);
+  background: rgba(255,255,255,0.5);
+  color: var(--txt-mid);
   cursor: pointer; display: flex; align-items: center; justify-content: center;
   transition: var(--transition); flex-shrink: 0;
-  position: relative;
 }
-.tool-btn svg { width: 17px; height: 17px; }
-.tool-btn:hover {
-  background: rgba(255,255,255,0.14);
-  color: #fff;
+.toolbar-glass .tool-btn svg { width: 17px; height: 17px; }
+.toolbar-glass .tool-btn:hover {
+  background: rgba(255,255,255,0.9);
+  color: var(--txt);
   transform: translateY(-2px) scale(1.08);
 }
-.tool-btn:active { transform: scale(0.92); }
-.tool-btn.active {
+.toolbar-glass .tool-btn:active { transform: scale(0.92); }
+.toolbar-glass .tool-btn.active {
   background: linear-gradient(135deg, var(--blue), var(--indigo));
-  color: #fff;
+  color: #fff; border-color: transparent;
   box-shadow: 0 4px 14px var(--indigo-glow);
 }
-.tool-btn.danger { color: rgba(240,82,94,0.7); }
-.tool-btn.danger:hover { color: var(--red); background: rgba(240,82,94,0.15); }
+.toolbar-glass .tool-btn.danger { color: var(--red); }
+.toolbar-glass .tool-btn.danger:hover { color: #fff; background: var(--red); border-color: var(--red); }
 .tool-divider {
   width: 1.5px; height: 24px;
   background: rgba(255,255,255,0.15);
@@ -944,33 +952,34 @@ html, body {
     overflow: hidden;
   }
 
-  .game-header { padding: 5px 10px; min-height: 52px; }
+  .game-header { padding: 5px 10px; min-height: 52px; flex-shrink: 0; }
   .timer-ring-wrap { width: 44px; height: 44px; }
   .timer-num { font-size: 0.88rem; }
   .wb-char { font-size: 1.1rem; }
-
+  
   /* Game body becomes column */
-  .game-body { flex-direction: column; flex: 1; min-height: 0; gap: 6px; }
-
-  /* Canvas takes top half */
-  .canvas-col { flex: 1 1 0; min-height: 0; order: 1; }
-  .canvas-wrap { flex: 1; }
-
-  /* Toolbar scrollable row */
-  .toolbar-dark {
-    gap: 5px; padding: 6px 8px; overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    justify-content: flex-start;
-    scrollbar-width: none;
+  .game-body { 
+    flex-direction: column; flex: 1; min-height: 0; gap: 6px; display: flex; 
   }
-  .toolbar-dark::-webkit-scrollbar { display: none; }
-  .tool-btn { width: 34px; height: 34px; flex-shrink: 0; }
-  .tool-btn svg { width: 15px; height: 15px; }
-
-  /* Bottom: LB + Chat side by side */
+  
+  /* Canvas takes exact top 50% minus gap */
+  .canvas-col { 
+    flex: 0 0 calc(50% - 3px); height: calc(50% - 3px); min-height: 0; order: 1; 
+  }
+  .canvas-wrap { flex: 1; }
+  
+  /* Toolbar glass mobile updates */
+  .toolbar-glass {
+    gap: 5px; padding: 6px 8px; overflow-x: auto;
+    -webkit-overflow-scrolling: touch; justify-content: flex-start; scrollbar-width: none;
+  }
+  .toolbar-glass::-webkit-scrollbar { display: none; }
+  .toolbar-glass .tool-btn { width: 34px; height: 34px; flex-shrink: 0; }
+  .toolbar-glass .tool-btn svg { width: 15px; height: 15px; }
+  
+  /* Bottom: LB + Chat exact bottom 50% minus gap */
   .bottom-mobile-row {
-    display: flex; gap: 6px; flex: 1 1 0; min-height: 0;
-    order: 2;
+    flex: 0 0 calc(50% - 3px); height: calc(50% - 3px); min-height: 0; order: 2; display: flex; gap: 6px;
   }
   #leaderboard-panel, #chat-panel { width: 50%; height: 100%; flex: 1; min-height: 0; }
 
