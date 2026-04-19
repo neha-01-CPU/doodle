@@ -579,12 +579,12 @@ html, body {
 #game-canvas.eraser { cursor: cell; }
 .canvas-wrap.fill-mode #game-canvas { cursor: crosshair; }
 
-/* ── TOOLBAR ── */
+/* ── TOOLBAR (Centered) ── */
 .toolbar-glass {
   flex-shrink: 0;
   border-radius: var(--radius-md);
   padding: 8px 12px;
-  display: flex; align-items: center;
+  display: flex; align-items: center; justify-content: center; /* Centers the toolbar perfectly */
   gap: 6px;
   position: relative;
   overflow: visible;
@@ -962,16 +962,18 @@ html, body {
     flex-direction: column; flex: 1; min-height: 0; gap: 6px; display: flex; 
   }
 
-  /* Canvas takes exact top 50% minus gap */
+  /* Canvas exact top 50% minus gap */
   .canvas-col { 
     flex: 0 0 calc(50% - 3px); height: calc(50% - 3px); min-height: 0; order: 1; 
   }
-  .canvas-wrap { flex: 1; }
+  .canvas-wrap { flex: 1; min-height: 0; }
 
-  /* Toolbar glass mobile updates */
+  /* Toolbar mobile layout adjustments */
   .toolbar-glass {
     gap: 5px; padding: 6px 8px; overflow-x: auto;
-    -webkit-overflow-scrolling: touch; justify-content: flex-start; scrollbar-width: none;
+    -webkit-overflow-scrolling: touch; 
+    justify-content: flex-start; /* Allows smooth horizontal scrolling if many tools */
+    scrollbar-width: none;
   }
   .toolbar-glass::-webkit-scrollbar { display: none; }
   .toolbar-glass .tool-btn { width: 34px; height: 34px; flex-shrink: 0; }
