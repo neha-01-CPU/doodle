@@ -956,18 +956,18 @@ html, body {
   .timer-ring-wrap { width: 44px; height: 44px; }
   .timer-num { font-size: 0.88rem; }
   .wb-char { font-size: 1.1rem; }
-  
+
   /* Game body becomes column */
   .game-body { 
     flex-direction: column; flex: 1; min-height: 0; gap: 6px; display: flex; 
   }
-  
+
   /* Canvas takes exact top 50% minus gap */
   .canvas-col { 
     flex: 0 0 calc(50% - 3px); height: calc(50% - 3px); min-height: 0; order: 1; 
   }
   .canvas-wrap { flex: 1; }
-  
+
   /* Toolbar glass mobile updates */
   .toolbar-glass {
     gap: 5px; padding: 6px 8px; overflow-x: auto;
@@ -976,7 +976,7 @@ html, body {
   .toolbar-glass::-webkit-scrollbar { display: none; }
   .toolbar-glass .tool-btn { width: 34px; height: 34px; flex-shrink: 0; }
   .toolbar-glass .tool-btn svg { width: 15px; height: 15px; }
-  
+
   /* Bottom: LB + Chat exact bottom 50% minus gap */
   .bottom-mobile-row {
     flex: 0 0 calc(50% - 3px); height: calc(50% - 3px); min-height: 0; order: 2; display: flex; gap: 6px;
